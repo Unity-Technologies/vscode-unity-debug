@@ -1,12 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace UnityDebug
 {
 	public class UnityDebug
 	{
 		static readonly Regex ContentLengthMatcher = new Regex("Content-Length: (\\d+)");
+
+		UnityDebugSession unityDebugSession = new UnityDebugSession();
 
 		Stream inputStream;
 		Stream outputStream;
@@ -75,7 +78,12 @@ namespace UnityDebug
 						requestHead = requestString.Substring (requestIndex + contentLength);
 					}
 
-					Log.Write (Program.Name + ".StandardInput  : '" + ConvertNewlinesToEscapeSequence (singleRequest) + "'");
+					Log.Write ("StandardInput  : '" + ConvertNewlinesToEscapeSequence (singleRequest) + "'");
+
+					var request = Request.Parse (singleRequest);
+					var response = unityDebugSession.HandleRequest (request);
+
+					WriteStandardOutput (ConvertToBytes (response));
 				} 
 				else
 				{
@@ -84,6 +92,33 @@ namespace UnityDebug
 			}
 		}
 
+		public void WriteStandardOutput(byte[] bytes)
+		{
+			if (bytes == null) 
+			{
+				Log.Write ("StandardOutput : bytes is null");
+				return;
+			}
+
+			Log.Write ("StandardOutput : '" + ConvertNewlinesToEscapeSequence(Settings.Encoding.GetString(bytes)) + "'");
+			outputStream.Write(bytes, 0, bytes.Length);
+			outputStream.Flush ();
+		}
+
+		static byte[] ConvertToBytes (Message message)
+		{
+			message.seq = ++Message.seqCounter;
+
+			string s = JsonConvert.SerializeObject (message);
+			byte[] bytes = Settings.Encoding.GetBytes (s);
+			string s2 = string.Format ("Content-Length: {0}{1}", bytes.Length, "\r\n\r\n");
+			byte[] bytes2 = Settings.Encoding.GetBytes (s2);
+			byte[] array = new byte[bytes2.Length + bytes.Length];
+			Buffer.BlockCopy (bytes2, 0, array, 0, bytes2.Length);
+			Buffer.BlockCopy (bytes, 0, array, bytes2.Length, bytes.Length);
+			return array;
+		}
+			
 		string ConvertNewlinesToEscapeSequence(string input)
 		{
 			return input.Replace ("\n", "\\n").Replace ("\r", "\\r");

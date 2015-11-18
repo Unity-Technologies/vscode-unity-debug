@@ -44,6 +44,13 @@
     <Reference Include="Mono.Debugging.Soft">
       <HintPath>..\External\Mono.Debugging.Soft.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\External\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Debugging">
+      <HintPath>..\External\Mono.Debugging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -51,6 +58,10 @@
     <Compile Include="Log.cs" />
     <Compile Include="UnityDebug.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="Request.cs" />
+    <Compile Include="UnityDebugSession.cs" />
+    <Compile Include="Response.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
