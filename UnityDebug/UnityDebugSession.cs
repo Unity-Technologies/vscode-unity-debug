@@ -6,13 +6,16 @@ using System.Net;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using System.Dynamic;
+using System.Collections.Generic;
 
 namespace UnityDebug
 {
 	public class UnityDebugSession
 	{
-		SoftDebuggerSession session;
 		bool initialized = false;
+		SoftDebuggerSession session;
+		ProcessInfo activeProcess;
 
 		static bool pathFormatPath = false;
 		static bool linesStartAt1 = false;
@@ -69,6 +72,15 @@ namespace UnityDebug
 					SetBreakpoint ((string)request.arguments.source.path, lines.Select(elem => (int)elem).ToArray());
 					return Response.Default (request);
 
+				case "threads":
+					var threads = Threads ();
+		
+					if (threads != null) {
+						dynamic body = new ExpandoObject ();
+						body.threads = threads;
+						return Response.Create (request, true, false, body);
+					} else
+						return Response.Failure (request, "Could not get threads");
 
 				default:
 					Log.Write (">>> ERROR: Unhandled request: " + request.command);
@@ -85,12 +97,16 @@ namespace UnityDebug
 			linesStartAt1 = startAt1;
 
 			session = new SoftDebuggerSession ();
+			session.ExceptionHandler += ExceptionHandler;
 
 			session.TargetEvent += (sender, e) => Log.Write ("Debugger Event: " + e.Type);
 			session.LogWriter = (isStdErr, text) => Log.Write ("Debugger Log: " + text);
 			session.OutputWriter = (isStdErr, text) => Log.Write ("Debugger Output: " + text);
 
-			session.ExceptionHandler += ExceptionHandler;
+			session.TargetReady += delegate(object sender, TargetEventArgs e) 
+			{
+				activeProcess = session.GetProcesses().SingleOrDefault<ProcessInfo>();
+			};
 
 			session.TargetHitBreakpoint += delegate (object sender, TargetEventArgs e) 
 			{
@@ -145,7 +161,7 @@ namespace UnityDebug
 			session = null;
 		}
 
-		private void SetBreakpoint(string path, int[] lines)
+		void SetBreakpoint(string path, int[] lines)
 		{
 			var fileBreakpoints = session.Breakpoints.GetBreakpointsAtFile (path);
 
@@ -164,6 +180,20 @@ namespace UnityDebug
 				}
 		}
 
+		Thread[] Threads ()
+		{
+			if (activeProcess == null)
+				return null;
+
+			// Use dictionary to get thread array sorted by thread id.
+			SortedDictionary<int, Thread> dictionary = new SortedDictionary<int, Thread> ();
+
+			foreach(var threadInfo in activeProcess.GetThreads())
+				dictionary.Add ((int)threadInfo.Id, new Thread ((int)threadInfo.Id, threadInfo.Name));
+		
+			return dictionary.Values.ToArray ();
+		}
+			
 		void SendEvent(string type,  dynamic body = null)
 		{
 			Log.DebugWrite ("Sending event: '" + type + "'");
@@ -175,7 +205,7 @@ namespace UnityDebug
 
 		void SendStoppedEvent(string reason, string text = null)
 		{
-			dynamic body = new System.Dynamic.ExpandoObject ();
+			dynamic body = new ExpandoObject ();
 
 			body.reason = reason;
 
