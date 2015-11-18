@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityDebug", "UnityDebug.csproj", "{D3E91D30-5B24-4743-BBE6-2EC62D7A2629}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityDebug", "UnityDebug\UnityDebug.csproj", "{D3E91D30-5B24-4743-BBE6-2EC62D7A2629}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

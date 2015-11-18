@@ -13,17 +13,18 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>..\bin\</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <ConsolePause>false</ConsolePause>
+    <Commandlineparameters>--unity-debug-extra-logging</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>..\bin\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
@@ -32,16 +33,16 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Mono.Cecil">
-      <HintPath>External\Mono.Cecil.dll</HintPath>
+      <HintPath>..\External\Mono.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>External\Mono.Cecil.Mdb.dll</HintPath>
+      <HintPath>..\External\Mono.Cecil.Mdb.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Debugger.Soft">
-      <HintPath>External\Mono.Debugger.Soft.dll</HintPath>
+      <HintPath>..\External\Mono.Debugger.Soft.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Debugging.Soft">
-      <HintPath>External\Mono.Debugging.Soft.dll</HintPath>
+      <HintPath>..\External\Mono.Debugging.Soft.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
