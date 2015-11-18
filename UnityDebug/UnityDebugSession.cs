@@ -350,27 +350,30 @@ namespace UnityDebug
 			if (threadInfo.Id != threadId) 
 			{
 				threadInfo = GetThread (threadId);
+
+				if (threadInfo == null)
+					return null;
+
 				threadInfo.SetActive ();
 			}
-
-			if (threadInfo == null)
-				return null;
 
 			List<StackFrame> frames = new List<StackFrame> ();
 
 			var backtrace = threadInfo.Backtrace;
 
-			if (backtrace != null)
-				for (int i = 0; i < Math.Min (backtrace.FrameCount, maxLevels); ++i) 
-				{
+			if (backtrace != null) {
+				for (int i = 0; i < Math.Min (backtrace.FrameCount, maxLevels); ++i) {
 					var stackFrame = backtrace.GetFrame (i);
 					var methodName = stackFrame.SourceLocation.MethodName;
 					int line = stackFrame.SourceLocation.Line;
 					int column = stackFrame.SourceLocation.Column;
 					var path = stackFrame.SourceLocation.FileName;
 
-					frames.Add (new StackFrame (threadId * 1000 + i, methodName, new Source (path), line, column));
+					int frameIndex = (backtrace.FrameCount - i);
+
+					frames.Add (new StackFrame (threadId * 1000 + frameIndex, methodName, new Source (path), line, column));
 				}
+			}
 
 			return frames.ToArray ();
 		}
@@ -378,28 +381,36 @@ namespace UnityDebug
 		Scope[] Scopes(int frameId)
 		{
 			int threadId = frameId / 1000;
-			int stackIndex = frameId % 1000;
+			int frameIndex = frameId % 1000;
 
-			var threadInfo = GetThread (threadId);
+			var threadInfo = session.ActiveThread;
 
-			if (threadInfo == null)
-				return null;
+			if (threadInfo.Id != threadId) 
+			{
+				threadInfo = GetThread (threadId);
+
+				if (threadInfo == null)
+					return null;
+
+				threadInfo.SetActive ();
+			}
 
 			var backtrace = threadInfo.Backtrace;
+			frameIndex -= backtrace.FrameCount;
 
-			if (stackIndex >= backtrace.FrameCount)
+			if (frameIndex > backtrace.FrameCount)
 				return null;
 
 			List<Scope> scopes = new List<Scope> ();
 
-			var stackFrame = backtrace.GetFrame (stackIndex);
+			var stackFrame = backtrace.GetFrame (frameIndex);
 
 			var arguments = stackFrame.GetParameters ().Where (p => p != null).ToArray();
 
 			if (arguments.Length > 0)
 				scopes.Add (new Scope ("Arguments", variableReferences.Add(arguments)));
 
-			var locals = stackFrame.GetLocalVariables ();
+			var locals = stackFrame.GetAllLocals ();
 
 			if (locals.Length > 0)
 				scopes.Add (new Scope ("Locals", variableReferences.Add(locals)));
@@ -420,8 +431,11 @@ namespace UnityDebug
 			{
 				ov.WaitHandle.WaitOne ();
 
-				int reference = ov.HasChildren ? variableReferences.Add (ov.GetAllChildren() ) : 0;
-				variables.Add(new Variable (string.Format ("{0} {1}", ov.TypeName, ov.Name), ov.DisplayValue, reference));
+				if (ov.Name == "?")
+					continue;
+
+				int reference = ov.HasChildren ? variableReferences.Add (ov.GetAllChildren ()) : 0;
+				variables.Add (new Variable (string.Format ("{0} {1}", ov.TypeName, ov.Name), ov.DisplayValue, reference));
 			}
 
 			return variables.ToArray ();
