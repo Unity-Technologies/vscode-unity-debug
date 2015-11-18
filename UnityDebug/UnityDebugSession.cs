@@ -228,7 +228,7 @@ namespace UnityDebug
 			return true;
 		}
 
-		private string Connect(string target)
+		string Connect(string target)
 		{
 			Log.DebugWrite ("Connect arguments: " + target);
 
@@ -429,10 +429,11 @@ namespace UnityDebug
 
 			foreach(var ov in objectValues)
 			{
-				ov.WaitHandle.WaitOne ();
-
-				if (ov.Name == "?")
+				// IsError is set for deprecated members.
+				if (ov.Name == "?" || ov.IsError)
 					continue;
+				
+				ov.WaitHandle.WaitOne ();
 
 				int reference = ov.HasChildren ? variableReferences.Add (ov.GetAllChildren ()) : 0;
 				variables.Add (new Variable (string.Format ("{0} {1}", ov.TypeName, ov.Name), ov.DisplayValue, reference));
