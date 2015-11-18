@@ -91,9 +91,27 @@ namespace UnityDebug
 					return Response.Default (request);
 				}
 
+				case "pause":
+				{
+					Pause ();
+					return Response.Default (request);
+				}
+
 				case "next":
 				{
 					StepOver ();
+					return Response.Default (request);
+				}
+
+				case "stepIn":
+				{
+					StepIn ();
+					return Response.Default (request);
+				}
+
+				case "stepOut":
+				{
+					StepOut ();
 					return Response.Default (request);
 				}
 
@@ -273,10 +291,28 @@ namespace UnityDebug
 				session.Continue ();
 		}
 
+		void Pause ()
+		{
+			if (session.IsRunning)
+				session.Stop ();
+		}
+
 		void StepOver()
 		{
-			Log.DebugWrite ("Step over");
-			session.NextLine ();
+			if (!session.IsRunning && !session.HasExited)
+				session.NextLine ();
+		}
+
+		void StepIn()
+		{
+			if (!session.IsRunning && !session.HasExited)
+				session.StepLine ();
+		}
+
+		void StepOut()
+		{
+			if (!session.IsRunning && !session.HasExited)
+				session.Finish ();
 		}
 
 		Thread[] Threads ()
