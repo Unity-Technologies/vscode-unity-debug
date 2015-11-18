@@ -111,13 +111,13 @@ namespace UnityDebug
 			session.TargetHitBreakpoint += delegate (object sender, TargetEventArgs e) 
 			{
 				Log.DebugWrite("Debugger TargetHitBreakpoint");
-				SendStoppedEvent("breakpoint");
+				SendStoppedEvent("breakpoint", (int)e.Thread.Id);
 			};
 
 			session.TargetStopped += delegate (object sender, TargetEventArgs e) 
 			{
 				Log.DebugWrite("Debugger TargetStopped");
-				SendStoppedEvent("step");
+				SendStoppedEvent("step", (int)e.Thread.Id);
 			};
 
 			return true;
@@ -203,11 +203,12 @@ namespace UnityDebug
 		}
 
 
-		void SendStoppedEvent(string reason, string text = null)
+		void SendStoppedEvent(string reason, int threadId, string text = null)
 		{
 			dynamic body = new ExpandoObject ();
 
 			body.reason = reason;
+			body.threadId = threadId;
 
 			if (text != null)
 				body.text = text;
