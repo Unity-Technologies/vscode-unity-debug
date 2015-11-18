@@ -4,6 +4,8 @@ using Mono.Debugging.Soft;
 using Mono.Debugging.Client;
 using System.Net;
 using System.Diagnostics;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace UnityDebug
 {
@@ -61,6 +63,12 @@ namespace UnityDebug
 				case "disconnect":
 					Disconnect ();
 					return Response.Default (request);
+
+				case "setBreakpoints":
+					JArray lines = request.arguments.lines;
+					SetBreakpoint ((string)request.arguments.source.path, lines.Select(elem => (int)elem).ToArray());
+					return Response.Default (request);
+
 
 				default:
 					Log.Write (">>> ERROR: Unhandled request: " + request.command);
@@ -135,6 +143,25 @@ namespace UnityDebug
 		{
 			// FIXME: Send VM_DISPOSE to debugger agent
 			session = null;
+		}
+
+		private void SetBreakpoint(string path, int[] lines)
+		{
+			var fileBreakpoints = session.Breakpoints.GetBreakpointsAtFile (path);
+
+			foreach (var bp in fileBreakpoints)
+				if (lines.All (l => l != bp.Line)) 
+				{
+					Log.DebugWrite ("Remove Breakpoint " + bp.FileName + ":" + bp.Line);
+					session.Breakpoints.Remove (bp);
+				}
+
+			foreach (int line in lines) 
+				if (!session.Breakpoints.OfType<Breakpoint> ().Any (b => b.FileName == path && b.Line == line )) 
+				{
+					Log.DebugWrite ("Add Breakpoint " + path + ":" + line);
+					session.Breakpoints.Add (path, line);
+				}
 		}
 
 		void SendEvent(string type,  dynamic body = null)
