@@ -10,7 +10,11 @@ namespace UnityDebug
 
 		public static void Main (string[] args)
 		{
-			Log.Debug = args.Contains("--unity-debug-extra-logging");
+			#if DEBUG
+			Log.Debug = true;
+			#else
+			Log.Debug = false;
+			#endif
 			Log.Write ("Starting " + Name);
 			Log.Write ("Arguments: '" + string.Join (" ", args) + "'");
 

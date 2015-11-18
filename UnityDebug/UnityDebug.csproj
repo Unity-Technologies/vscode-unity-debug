@@ -62,6 +62,7 @@
     <Compile Include="Request.cs" />
     <Compile Include="UnityDebugSession.cs" />
     <Compile Include="Response.cs" />
+    <Compile Include="Event.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

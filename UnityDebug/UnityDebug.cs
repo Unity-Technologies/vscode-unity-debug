@@ -21,6 +21,8 @@ namespace UnityDebug
 			this.outputStream = outputStream;
 
 			outputWriter = new StreamWriter (outputStream);
+
+			unityDebugSession.OnSendEvent += WriteStandardOutput;
 		}
 
 		public void Run()
@@ -83,13 +85,18 @@ namespace UnityDebug
 					var request = Request.Parse (singleRequest);
 					var response = unityDebugSession.HandleRequest (request);
 
-					WriteStandardOutput (ConvertToBytes (response));
+					WriteStandardOutput (response);
 				} 
 				else
 				{
 					Log.Write ("No Content-Length match : '" + requestString + "'");
 				}
 			}
+		}
+
+		public void WriteStandardOutput(Message message)
+		{
+			WriteStandardOutput (ConvertToBytes (message));
 		}
 
 		public void WriteStandardOutput(byte[] bytes)
