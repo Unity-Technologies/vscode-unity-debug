@@ -68,14 +68,6 @@ namespace UnityDebug
 			}
 		}
 
-		void SendEvent(string type)
-		{
-			Log.DebugWrite ("Sending event: '" + type + "'");
-
-			if(sendEventEvent != null)
-				sendEventEvent(new Event(type));
-		}
-
 		bool Initialize(string adapterID, string pathFormat, bool startAt1)
 		{
 			if (adapterID != "unity")
@@ -91,6 +83,18 @@ namespace UnityDebug
 			session.OutputWriter = (isStdErr, text) => Log.Write ("Debugger Output: " + text);
 
 			session.ExceptionHandler += ExceptionHandler;
+
+			session.TargetHitBreakpoint += delegate (object sender, TargetEventArgs e) 
+			{
+				Log.DebugWrite("Debugger TargetHitBreakpoint");
+				SendStoppedEvent("breakpoint");
+			};
+
+			session.TargetStopped += delegate (object sender, TargetEventArgs e) 
+			{
+				Log.DebugWrite("Debugger TargetStopped");
+				SendStoppedEvent("step");
+			};
 
 			return true;
 		}
@@ -131,6 +135,27 @@ namespace UnityDebug
 		{
 			// FIXME: Send VM_DISPOSE to debugger agent
 			session = null;
+		}
+
+		void SendEvent(string type,  dynamic body = null)
+		{
+			Log.DebugWrite ("Sending event: '" + type + "'");
+
+			if(sendEventEvent != null)
+				sendEventEvent(new Event(type, body));
+		}
+
+
+		void SendStoppedEvent(string reason, string text = null)
+		{
+			dynamic body = new System.Dynamic.ExpandoObject ();
+
+			body.reason = reason;
+
+			if (text != null)
+				body.text = text;
+
+			SendEvent ("stopped", body);
 		}
 
 		int FindUnityEditorPort()
