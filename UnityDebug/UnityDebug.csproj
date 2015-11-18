@@ -66,6 +66,9 @@
     <Compile Include="Thread.cs" />
     <Compile Include="StackFrame.cs" />
     <Compile Include="Source.cs" />
+    <Compile Include="Scope.cs" />
+    <Compile Include="Variable.cs" />
+    <Compile Include="VariableMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -16,6 +16,7 @@ namespace UnityDebug
 		bool initialized = false;
 		SoftDebuggerSession session;
 		ProcessInfo activeProcess;
+		VariableMap<ObjectValue[]> variableReferences = new VariableMap<ObjectValue[]>();
 
 		static bool pathFormatPath = false;
 		static bool linesStartAt1 = false;
@@ -102,6 +103,19 @@ namespace UnityDebug
 						return Response.Create (request, true, false, body);
 					} else
 						return Response.Failure (request, "Could not get stack trace for threadId " + threadId);
+				}
+
+				case "scopes":
+				{
+					int frameId = (int)request.arguments.frameId;
+					var scopes = Scopes (frameId);
+
+					if (scopes != null) {
+						dynamic body = new ExpandoObject ();
+						body.scopes = scopes;
+						return Response.Create (request, true, false, body);
+					} else
+						return Response.Failure (request, "Could not get scope for frameId " + frameId);
 				}
 
 				default:
@@ -230,8 +244,8 @@ namespace UnityDebug
 			return null;
 		}
 
-		public StackFrame[] StackTrace (int threadId, int maxLevels)
-		{			
+		StackFrame[] StackTrace (int threadId, int maxLevels)
+		{
 			var threadInfo = GetThread (threadId);
 
 			if (threadInfo == null)
@@ -250,10 +264,42 @@ namespace UnityDebug
 					int column = stackFrame.SourceLocation.Column;
 					var path = stackFrame.SourceLocation.FileName;
 
-					frames.Add (new StackFrame (i, methodName, new Source (path), line, column));
+					frames.Add (new StackFrame (threadId * 1000 + i, methodName, new Source (path), line, column));
 				}
 
 			return frames.ToArray ();
+		}
+
+		Scope[] Scopes(int frameId)
+		{
+			int threadId = frameId / 1000;
+			int stackIndex = frameId % 1000;
+
+			var threadInfo = GetThread (threadId);
+
+			if (threadInfo == null)
+				return null;
+
+			var backtrace = threadInfo.Backtrace;
+
+			if (stackIndex >= backtrace.FrameCount)
+				return null;
+
+			List<Scope> scopes = new List<Scope> ();
+
+			var stackFrame = backtrace.GetFrame (stackIndex);
+
+			var arguments = stackFrame.GetParameters ().Where (p => p != null).ToArray();
+
+			if (arguments.Length > 0)
+				scopes.Add (new Scope ("Arguments", variableReferences.Add(arguments)));
+
+			var locals = stackFrame.GetLocalVariables ();
+
+			if (locals.Length > 0)
+				scopes.Add (new Scope ("Locals", variableReferences.Add(locals)));
+
+			return scopes.ToArray ();
 		}
 			
 		void SendEvent(string type,  dynamic body = null)
