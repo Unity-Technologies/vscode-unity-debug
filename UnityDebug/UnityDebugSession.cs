@@ -58,6 +58,10 @@ namespace UnityDebug
 					var errorMessage = Connect (target);
 					return errorMessage != null ? Response.Failure (request, errorMessage) : Response.Default (request);
 
+				case "disconnect":
+					Disconnect ();
+					return Response.Default (request);
+
 				default:
 					Log.Write (">>> ERROR: Unhandled request: " + request.command);
 					return Response.Failure (request, "Unhandled request: '" + request.command + "'");
@@ -121,6 +125,12 @@ namespace UnityDebug
 				new DebuggerSessionOptions { EvaluationOptions = EvaluationOptions.DefaultOptions });
 
 			return null;
+		}
+
+		void Disconnect()
+		{
+			// FIXME: Send VM_DISPOSE to debugger agent
+			session = null;
 		}
 
 		int FindUnityEditorPort()
