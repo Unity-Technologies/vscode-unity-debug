@@ -85,6 +85,18 @@ namespace UnityDebug
 					return Response.Default (request);
 				}
 
+				case "continue":
+				{
+					Continue ();
+					return Response.Default (request);
+				}
+
+				case "next":
+				{
+					StepOver ();
+					return Response.Default (request);
+				}
+
 				case "threads":
 				{
 					var threads = Threads ();
@@ -184,12 +196,14 @@ namespace UnityDebug
 			session.TargetHitBreakpoint += delegate (object sender, TargetEventArgs e) 
 			{
 				Log.DebugWrite("Debugger TargetHitBreakpoint");
+				OnStopped();
 				SendStoppedEvent("breakpoint", (int)e.Thread.Id);
 			};
 
 			session.TargetStopped += delegate (object sender, TargetEventArgs e) 
 			{
 				Log.DebugWrite("Debugger TargetStopped");
+				OnStopped();
 				SendStoppedEvent("step", (int)e.Thread.Id);
 			};
 
@@ -253,6 +267,18 @@ namespace UnityDebug
 				}
 		}
 
+		void Continue ()
+		{
+			if (!session.IsRunning && !session.HasExited)
+				session.Continue ();
+		}
+
+		void StepOver()
+		{
+			Log.DebugWrite ("Step over");
+			session.NextLine ();
+		}
+
 		Thread[] Threads ()
 		{
 			if (activeProcess == null)
@@ -283,7 +309,13 @@ namespace UnityDebug
 
 		StackFrame[] StackTrace (int threadId, int maxLevels)
 		{
-			var threadInfo = GetThread (threadId);
+			var threadInfo = session.ActiveThread;
+
+			if (threadInfo.Id != threadId) 
+			{
+				threadInfo = GetThread (threadId);
+				threadInfo.SetActive ();
+			}
 
 			if (threadInfo == null)
 				return null;
@@ -388,6 +420,11 @@ namespace UnityDebug
 				body.text = text;
 
 			SendEvent ("stopped", body);
+		}
+
+		void OnStopped ()
+		{
+			variableReferences.Clear ();
 		}
 
 		int FindUnityEditorPort()
