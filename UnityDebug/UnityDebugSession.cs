@@ -17,6 +17,7 @@ namespace UnityDebug
 		SoftDebuggerSession session;
 		ProcessInfo activeProcess;
 		VariableMap<ObjectValue[]> variableReferences = new VariableMap<ObjectValue[]>();
+		private Dictionary<int, Thread> activeThreads = new Dictionary<int, Thread> ();
 
 		static bool pathFormatPath = false;
 		static bool linesStartAt1 = false;
@@ -125,15 +126,15 @@ namespace UnityDebug
 
 				case "variables":
 				{
-					int variableRefernece = (int)request.arguments.variablesReference;
-					var variables = ChildVariables (variableRefernece);
+					int variableReference = (int)request.arguments.variablesReference;
+					var variables = ChildVariables (variableReference);
 
 					if (variables != null) {
 						dynamic body = new ExpandoObject ();
 						body.variables = variables;
 						return Response.Success (request, body);
 					} else
-						return Response.Failure (request, "Could not get variables for variable reference  " + variableRefernece);
+						return Response.Failure (request, "Could not get variables for variable reference  " + variableReference);
 				}
 				default:
 					Log.Write (">>> ERROR: Unhandled request: " + request.command);
@@ -156,9 +157,28 @@ namespace UnityDebug
 			session.LogWriter = (isStdErr, text) => Log.Write ("Debugger Log: " + text);
 			session.OutputWriter = (isStdErr, text) => Log.Write ("Debugger Output: " + text);
 
-			session.TargetReady += delegate(object sender, TargetEventArgs e) 
+			session.TargetReady += (object sender, TargetEventArgs e) => activeProcess = session.GetProcesses ().SingleOrDefault<ProcessInfo> ();
+
+			session.TargetThreadStarted += delegate(object sender, TargetEventArgs e) 
 			{
-				activeProcess = session.GetProcesses().SingleOrDefault<ProcessInfo>();
+				var thread = e.Thread;
+
+				if(!activeThreads.ContainsKey((int)thread.Id))
+				{
+					activeThreads.Add((int)thread.Id, new Thread((int)thread.Id, thread.Name));
+					SendThreadEvent("started", (int)thread.Id);
+				}
+			};
+
+			session.TargetThreadStopped += delegate(object sender, TargetEventArgs e) 
+			{
+				var thread = e.Thread;
+
+				if(activeThreads.ContainsKey((int)thread.Id))
+				{
+					activeThreads.Remove((int)thread.Id);
+					SendThreadEvent("exited", (int)thread.Id);
+				}
 			};
 
 			session.TargetHitBreakpoint += delegate (object sender, TargetEventArgs e) 
@@ -345,6 +365,16 @@ namespace UnityDebug
 
 			if(sendEventEvent != null)
 				sendEventEvent(new Event(type, body));
+		}
+
+		void SendThreadEvent(string reason, int threadId)
+		{
+			dynamic body = new ExpandoObject ();
+
+			body.reason = reason;
+			body.threadId = threadId;
+
+			SendEvent ("thread", body);
 		}
 
 		void SendStoppedEvent(string reason, int threadId, string text = null)
