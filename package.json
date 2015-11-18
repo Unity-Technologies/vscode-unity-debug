@@ -1,0 +1,29 @@
+{
+    "name": "unity-debug",
+    "version": "0.1.0",
+    "publisher": "Unity Technologies",
+    "description": "Unity debug extension",
+    "engines": { "vscode": "0.10.x" },
+    "categories": ["Debuggers"],
+
+    "contributes": {
+        "debuggers": [{
+            "type": "unity",
+            "label": "Unity Debugger",
+
+            "enableBreakpointsFor": { "languageIds": ["csharp"] },
+
+            "program": "./bin/UnityDebug.exe",
+    		"osx": { "runtime": "mono" },
+ 		  	"linux": { "runtime": "mono" },
+
+            "initialConfigurations": [
+                {
+                    "name": "Unity Editor",
+                    "type": "unity",
+                    "request": "launch"
+                }
+            ]
+        }]
+    }
+}
