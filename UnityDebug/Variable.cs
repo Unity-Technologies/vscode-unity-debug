@@ -1,12 +1,12 @@
 ﻿namespace UnityDebug
 {
-	public class Varible
+	public class Variable
 	{
 		public string name;
 		public string value;
 		public int variablesReference;
 
-		public Varible (string name, string value, int variablesReference)
+		public Variable (string name, string value, int variablesReference)
 		{
 			this.name = name;
 			this.value = value;

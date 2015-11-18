@@ -79,6 +79,11 @@ namespace UnityDebug
 					return Response.Default (request);
 				}
 
+				case "setExceptionBreakpoints":
+				{
+					return Response.Default (request);
+				}
+
 				case "threads":
 				{
 					var threads = Threads ();
@@ -86,7 +91,7 @@ namespace UnityDebug
 					if (threads != null) {
 						dynamic body = new ExpandoObject ();
 						body.threads = threads;
-						return Response.Create (request, true, false, body);
+						return Response.Success (request, body);
 					} else
 						return Response.Failure (request, "Could not get threads");
 				}
@@ -100,7 +105,7 @@ namespace UnityDebug
 					if (frames != null) {
 						dynamic body = new ExpandoObject ();
 						body.stackFrames = frames;
-						return Response.Create (request, true, false, body);
+						return Response.Success (request, body);
 					} else
 						return Response.Failure (request, "Could not get stack trace for threadId " + threadId);
 				}
@@ -113,11 +118,23 @@ namespace UnityDebug
 					if (scopes != null) {
 						dynamic body = new ExpandoObject ();
 						body.scopes = scopes;
-						return Response.Create (request, true, false, body);
+						return Response.Success (request, body);
 					} else
 						return Response.Failure (request, "Could not get scope for frameId " + frameId);
 				}
 
+				case "variables":
+				{
+					int variableRefernece = (int)request.arguments.variablesReference;
+					var variables = ChildVariables (variableRefernece);
+
+					if (variables != null) {
+						dynamic body = new ExpandoObject ();
+						body.variables = variables;
+						return Response.Success (request, body);
+					} else
+						return Response.Failure (request, "Could not get variables for variable reference  " + variableRefernece);
+				}
 				default:
 					Log.Write (">>> ERROR: Unhandled request: " + request.command);
 					return Response.Failure (request, "Unhandled request: '" + request.command + "'");
@@ -301,7 +318,27 @@ namespace UnityDebug
 
 			return scopes.ToArray ();
 		}
-			
+
+		Variable[] ChildVariables(int variableReference)
+		{
+			ObjectValue[] objectValues;
+
+			if (!variableReferences.TryGet (variableReference, out objectValues))
+				return null;
+
+			var variables = new List<Variable> ();
+
+			foreach(var ov in objectValues)
+			{
+				ov.WaitHandle.WaitOne ();
+
+				int reference = ov.HasChildren ? variableReferences.Add (ov.GetAllChildren() ) : 0;
+				variables.Add(new Variable (string.Format ("{0} {1}", ov.TypeName, ov.Name), ov.DisplayValue, reference));
+			}
+
+			return variables.ToArray ();
+		}
+
 		void SendEvent(string type,  dynamic body = null)
 		{
 			Log.DebugWrite ("Sending event: '" + type + "'");
@@ -309,7 +346,6 @@ namespace UnityDebug
 			if(sendEventEvent != null)
 				sendEventEvent(new Event(type, body));
 		}
-
 
 		void SendStoppedEvent(string reason, int threadId, string text = null)
 		{
