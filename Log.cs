@@ -8,6 +8,8 @@ namespace UnityDebug
 	{
 		static readonly string logPath;
 
+		public static bool Debug { get; set; }
+
 		static Log ()
 		{
 			logPath = Path.Combine(Path.GetDirectoryName (Assembly.GetExecutingAssembly ().Location), Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly ().Location) + "-log.txt");
@@ -18,6 +20,12 @@ namespace UnityDebug
 		{
 			var time = DateTime.Now.ToString ("HH:mm:ss.ffffff");
 			return String.Format ("{0}: {1}\n", time, message);
+		}
+
+		public static void DebugWrite(string message)
+		{
+			if (Debug)
+				Write (message);
 		}
 
 		public static void Write(string message)
