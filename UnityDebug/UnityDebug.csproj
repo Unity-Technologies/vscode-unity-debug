@@ -64,6 +64,8 @@
     <Compile Include="Response.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Thread.cs" />
+    <Compile Include="StackFrame.cs" />
+    <Compile Include="Source.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -59,20 +59,27 @@ namespace UnityDebug
 			switch (request.command) 
 			{
 				case "launch":
+				{
 					string target = request.arguments.name;
 					var errorMessage = Connect (target);
 					return errorMessage != null ? Response.Failure (request, errorMessage) : Response.Default (request);
+				}
 
 				case "disconnect":
+				{
 					Disconnect ();
 					return Response.Default (request);
+				}
 
 				case "setBreakpoints":
+				{
 					JArray lines = request.arguments.lines;
-					SetBreakpoint ((string)request.arguments.source.path, lines.Select(elem => (int)elem).ToArray());
+					SetBreakpoint ((string)request.arguments.source.path, lines.Select (elem => (int)elem).ToArray ());
 					return Response.Default (request);
+				}
 
 				case "threads":
+				{
 					var threads = Threads ();
 		
 					if (threads != null) {
@@ -81,6 +88,21 @@ namespace UnityDebug
 						return Response.Create (request, true, false, body);
 					} else
 						return Response.Failure (request, "Could not get threads");
+				}
+
+				case "stackTrace":
+				{
+					int threadId = (int)request.arguments.threadId;
+					int levels = (int)request.arguments.levels;
+					var frames = StackTrace (threadId, levels);
+
+					if (frames != null) {
+						dynamic body = new ExpandoObject ();
+						body.stackFrames = frames;
+						return Response.Create (request, true, false, body);
+					} else
+						return Response.Failure (request, "Could not get stack trace for threadId " + threadId);
+				}
 
 				default:
 					Log.Write (">>> ERROR: Unhandled request: " + request.command);
@@ -192,6 +214,46 @@ namespace UnityDebug
 				dictionary.Add ((int)threadInfo.Id, new Thread ((int)threadInfo.Id, threadInfo.Name));
 		
 			return dictionary.Values.ToArray ();
+		}
+
+		ThreadInfo GetThread (int threadId)
+		{
+			if (activeProcess != null) {
+				ThreadInfo[] threads = activeProcess.GetThreads ();
+				for (int i = 0; i < threads.Length; i++) {
+					ThreadInfo threadInfo = threads [i];
+					if (threadInfo.Id == (long)threadId) {
+						return threadInfo;
+					}
+				}
+			}
+			return null;
+		}
+
+		public StackFrame[] StackTrace (int threadId, int maxLevels)
+		{			
+			var threadInfo = GetThread (threadId);
+
+			if (threadInfo == null)
+				return null;
+
+			List<StackFrame> frames = new List<StackFrame> ();
+
+			var backtrace = threadInfo.Backtrace;
+
+			if (backtrace != null)
+				for (int i = 0; i < Math.Min (backtrace.FrameCount, maxLevels); ++i) 
+				{
+					var stackFrame = backtrace.GetFrame (i);
+					var methodName = stackFrame.SourceLocation.MethodName;
+					int line = stackFrame.SourceLocation.Line;
+					int column = stackFrame.SourceLocation.Column;
+					var path = stackFrame.SourceLocation.FileName;
+
+					frames.Add (new StackFrame (i, methodName, new Source (path), line, column));
+				}
+
+			return frames.ToArray ();
 		}
 			
 		void SendEvent(string type,  dynamic body = null)
