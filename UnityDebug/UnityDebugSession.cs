@@ -19,9 +19,6 @@ namespace UnityDebug
 		VariableMap<ObjectValue[]> variableReferences = new VariableMap<ObjectValue[]>();
 		private Dictionary<int, Thread> activeThreads = new Dictionary<int, Thread> ();
 
-		static bool pathFormatPath = false;
-		static bool linesStartAt1 = false;
-
 		public delegate void SendEventHandler(Event @event);
 		private event SendEventHandler sendEventEvent;
 
@@ -37,10 +34,11 @@ namespace UnityDebug
 			}
 		}
 
+		// Protocol documented here: https://github.com/Microsoft/vscode-mock-debug/blob/master/src/common/debugProtocol.d.ts
 		public Response HandleRequest(Request request)
 		{
 			if (request.command == "initialize") {
-				initialized = Initialize ((string)request.arguments.adapterID, (string)request.arguments.pathFormat, (bool)request.arguments.linesStartAt1);
+				initialized = Initialize ((string)request.arguments.adapterID);
 
 				if (!initialized) 
 					return Response.Failure (request, "Debugger type is " + (string)request.arguments.adapterId + " and not 'unity'");
@@ -172,13 +170,10 @@ namespace UnityDebug
 			}
 		}
 
-		bool Initialize(string adapterID, string pathFormat, bool startAt1)
+		bool Initialize(string adapterID)
 		{
 			if (adapterID != "unity")
 				return false;
-
-			pathFormatPath = (pathFormat == "path");
-			linesStartAt1 = startAt1;
 
 			session = new SoftDebuggerSession ();
 			session.ExceptionHandler += ExceptionHandler;
@@ -398,6 +393,7 @@ namespace UnityDebug
 			var backtrace = threadInfo.Backtrace;
 			frameIndex -= backtrace.FrameCount;
 
+
 			if (frameIndex > backtrace.FrameCount)
 				return null;
 
@@ -451,6 +447,7 @@ namespace UnityDebug
 		}
 
 		void SendThreadEvent(string reason, int threadId)
+
 		{
 			dynamic body = new ExpandoObject ();
 

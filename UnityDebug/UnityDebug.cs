@@ -13,14 +13,11 @@ namespace UnityDebug
 
 		Stream inputStream;
 		Stream outputStream;
-		StreamWriter outputWriter;
 
 		public UnityDebug (Stream inputStream, Stream outputStream)
 		{
 			this.inputStream = inputStream;
 			this.outputStream = outputStream;
-
-			outputWriter = new StreamWriter (outputStream);
 
 			unityDebugSession.OnSendEvent += WriteStandardOutput;
 		}
