@@ -57,9 +57,6 @@
     <Compile Include="..\MonoDebug\src\MonoDebugSession.cs">
       <Link>MonoDebug\MonoDebugSession.cs</Link>
     </Compile>
-    <Compile Include="..\MonoDebug\src\MonoEngineFactory.cs">
-      <Link>MonoDebug\MonoEngineFactory.cs</Link>
-    </Compile>
     <Compile Include="..\MonoDebug\src\common\Events.cs">
       <Link>MonoDebug\common\Events.cs</Link>
     </Compile>
@@ -120,6 +117,8 @@
     <Compile Include="..\MonoDebug\sdb\src\Configuration.cs">
       <Link>MonoDebug\softdebug\src\Configuration.cs</Link>
     </Compile>
+    <Compile Include="UnityDebugSession.cs" />
+    <Compile Include="UnityEngineFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
