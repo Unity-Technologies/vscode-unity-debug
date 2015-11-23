@@ -32,7 +32,7 @@ namespace UnityDebug
 				return Task.FromResult (new DebugResult ());
 			}
 
-			return Task.FromResult (new DebugResult (8001, "Unknown target name '{_name}'. Did you mean 'Unity Editor'?", new { _name = name}));
+			return Task.FromResult (new DebugResult (8002, "Unknown target name '{_name}'. Did you mean 'Unity Editor'?", new { _name = name}));
 		}
 
 		public override Task<DebugResult> Disconnect()
