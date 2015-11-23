@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Mono.Debugger.Client;
+using Mono.Debugging.Client;
 using OpenDebug;
 
 namespace UnityDebug
@@ -10,6 +11,7 @@ namespace UnityDebug
 	{
 		public UnityDebugSession(Action<DebugEvent> callback) : base(callback)
 		{
+			VariablesIgnoreFlags = ObjectValueFlags.Error;
 		}
 
 		public override Task<DebugResult> Launch(dynamic args)
