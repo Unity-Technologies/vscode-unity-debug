@@ -25,13 +25,17 @@ namespace UnityDebug
 			var nameLower = name.ToLower ();
 
 			if (nameLower.Contains ("unity") && nameLower.Contains ("editor")) {
-				int editorPort = FindUnityEditorPort ();
+				var editorProcess = FindUnityEditorProcess ();
 
-				if (editorPort == -1)
+				if (editorProcess == null)
 					return Task.FromResult (new DebugResult (8001, "Could not find Unity editor process", new {}));
 
-				Debugger.Connect (IPAddress.Loopback, editorPort);
-				return Task.FromResult (new DebugResult ());
+				Debugger.Connect (IPAddress.Loopback, GetDebuggerPort(editorProcess));
+
+				var debugResult = new DebugResult ();
+				debugResult.Add(new OutputEvent("UnityDebug: Attached to Unity editor process '" + editorProcess.ProcessName + "' (" + editorProcess.Id + ")\n"));
+
+				return Task.FromResult (debugResult);
 			}
 
 			return Task.FromResult (new DebugResult (8002, "Unknown target name '{_name}'. Did you mean 'Unity Editor'?", new { _name = name}));
@@ -43,20 +47,21 @@ namespace UnityDebug
 			return Task.FromResult(new DebugResult());
 		}
 
-		int FindUnityEditorPort()
+		System.Diagnostics.Process FindUnityEditorProcess()
 		{
-			var processes =  System.Diagnostics.Process.GetProcesses ();
+			var processes = System.Diagnostics.Process.GetProcesses ();
 
 			if (null != processes) {
 				foreach (System.Diagnostics.Process p in processes) {
 					try {
 						if ((p.ProcessName.StartsWith ("unity", StringComparison.OrdinalIgnoreCase) ||
 							p.ProcessName.Contains ("Unity.app")) &&
+							!p.ProcessName.Contains ("UnityDebug") &&
 							!p.ProcessName.Contains ("UnityShader") &&
 							!p.ProcessName.Contains ("UnityHelper") &&
 							!p.ProcessName.Contains ("Unity Helper")) 
 						{
-							return 56000 + (p.Id % 1000);
+							return p;
 						}
 					} catch {
 						// Don't care; continue
@@ -64,9 +69,14 @@ namespace UnityDebug
 				}
 			}
 
-			return -1;
+			return null;
 		}
 
+		int GetDebuggerPort(System.Diagnostics.Process p)
+		{
+			return 56000 + (p.Id % 1000);
+		}
+		
 	}
 }
 
