@@ -1,0 +1,12 @@
+UnityDebug - Unity Debugger Extension for Visual Studio Code
+------------------------------------------------------------
+
+Git: https://github.com/Unity-Technologies/vscode-unity-debug
+
+Changes
+-------
+
+0.1.0
+=====
+- Initial release.
+- Only attaching to Unity editor is supported.
