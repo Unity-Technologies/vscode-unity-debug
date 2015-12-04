@@ -103,8 +103,11 @@ namespace UnityDebug
 
 			var processes = UnityAttach.GetAttachableProcesses (name).ToArray ();
 
-			if (processes.Length == 0)
+			if (processes == null)
 				return Task.FromResult (new DebugResult (8001, "Unknown target name '{_name}'. Did you mean 'Unity Editor'?", new { _name = name}));
+
+			if (processes.Length == 0)
+				return Task.FromResult (new DebugResult (8001, "Could not find target name '{_name}'. Is it running?", new { _name = name}));
 
 			if(processes.Length > 1)
 				return Task.FromResult (new DebugResult (8002, "Multiple targets with name '{_name}' running. Unable to connect.", new { _name = name}));
