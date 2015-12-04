@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenDebug;
 
-namespace OpenDebug
+namespace UnityDebug
 {
 	public static class EngineFactory
 	{

@@ -69,9 +69,6 @@
     <Compile Include="..\MonoDebug\src\common\PathUtilities.cs">
       <Link>MonoDebug\common\PathUtilities.cs</Link>
     </Compile>
-    <Compile Include="..\MonoDebug\src\common\Program.cs">
-      <Link>MonoDebug\common\Program.cs</Link>
-    </Compile>
     <Compile Include="..\MonoDebug\src\common\Results.cs">
       <Link>MonoDebug\common\Results.cs</Link>
     </Compile>
@@ -119,6 +116,7 @@
     </Compile>
     <Compile Include="UnityDebugSession.cs" />
     <Compile Include="UnityEngineFactory.cs" />
+    <Compile Include="Program.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
