@@ -3,28 +3,67 @@
     "version": "0.1.0",
     "publisher": "Unity Technologies",
     "description": "Unity debug extension",
-    "engines": { "vscode": "0.10.x" },
+    "engines": {
+        "vscode": "0.10.x"
+    },
     "categories": ["Debuggers"],
 
     "contributes": {
         "debuggers": [{
             "type": "unity",
             "label": "Unity Debugger",
-            "configurationAttributes": { "launch": {} },
+            "configurationAttributes": {
+                "launch": {},
+                "attach": {}
+            },
 
-            "enableBreakpointsFor": { "languageIds": ["csharp"] },
+            "enableBreakpointsFor": {
+                "languageIds": ["csharp"]
+            },
 
             "program": "./bin/UnityDebug.exe",
-    		"osx": { "runtime": "mono" },
- 		  	"linux": { "runtime": "mono" },
+            "osx": {
+                "runtime": "mono"
+            },
+            "linux": {
+                "runtime": "mono"
+            },
 
-            "initialConfigurations": [
-                {
-                    "name": "Unity Editor",
-                    "type": "unity",
-                    "request": "launch"
-                }
-            ]
+            "initialConfigurations": [{
+                "name": "Unity Editor",
+                "type": "unity",
+                "request": "launch"
+            }, {
+                "name": "Windows Player",
+                "type": "unity",
+                "request": "launch"
+            }, {
+                "name": "OSX Player",
+                "type": "unity",
+                "request": "launch"
+            }, {
+                "name": "Linux Player",
+                "type": "unity",
+                "request": "launch"
+            }, {
+                "name": "iOS Player",
+                "type": "unity",
+                "request": "launch"
+            }, {
+                "name": "Android Player",
+                "type": "unity",
+                "request": "launch"
+            }, {
+
+                "name": "Windows WebPlayer",
+                "type": "unity",
+                "request": "launch"
+            }, {
+
+                "name": "OSX WebPlayer",
+                "type": "unity",
+                "request": "launch"
+            }]
         }]
     }
 }
