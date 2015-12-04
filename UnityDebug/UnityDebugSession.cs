@@ -114,11 +114,7 @@ namespace UnityDebug
 			var attachInfo = UnityProcessDiscovery.GetUnityAttachInfo (process.Id, ref unityDebugConnector);
 
 			Debugger.Connect (attachInfo.Address, attachInfo.Port);
-
-			var debugResult = new DebugResult ();
-			debugResult.Add(new OutputEvent("UnityDebug: Attached to Unity process '" + process.Name + "' (" + process.Id + ")\n"));
-
-			return Task.FromResult (debugResult);
+			return Task.FromResult (CreateDebugResult("UnityDebug: Attached to Unity process '" + process.Name + "' (" + process.Id + ")\n"));
 		}
 
 		public override Task<DebugResult> Disconnect()
@@ -129,7 +125,7 @@ namespace UnityDebug
 			}
 
 			Debugger.Disconnect();
-			return Task.FromResult(new DebugResult());
+			return Task.FromResult(CreateDebugResult("UnityDebug: Disconnected"));
 		}
 
 		public override Task<DebugResult> Continue(int thread)
@@ -433,6 +429,13 @@ namespace UnityDebug
 				}
 			}
 			return false;
+		}
+
+		DebugResult CreateDebugResult(string message)
+		{
+			var debugResult = new DebugResult ();
+			debugResult.Add (new OutputEvent (message));
+			return debugResult;
 		}
 
 		private static int getInt(dynamic container, string propertyName, int dflt = 0)

@@ -130,6 +130,7 @@
     <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\UnityAttachInfo.cs">
       <Link>MonoDevelop.Debugger.Soft.Unity\UnityAttachInfo.cs</Link>
     </Compile>
+    <Compile Include="Log.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

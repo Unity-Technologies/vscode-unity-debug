@@ -8,7 +8,15 @@ namespace UnityDebug
 	{
 		static void Main(string[] argv)
 		{
-			Dispatch(Console.OpenStandardInput(), Console.OpenStandardOutput());
+			Log.Write ("UnityDebug");
+			try
+			{
+				Dispatch(Console.OpenStandardInput(), Console.OpenStandardOutput());
+			}
+			catch(Exception e) 
+			{
+				Log.Write ("Exception: " + e);
+			}
 		}
 
 		static void Dispatch(Stream inputStream, Stream outputStream)
@@ -48,14 +56,25 @@ namespace UnityDebug
 							responder.SetBody(dr.Body);
 
 							if (dr.Events != null) {
-								foreach (var e in dr.Events) {
+								foreach (var e in dr.Events) 
+								{
 									responder.AddEvent(e.type, e);
+
+									var outputEvent = e as OutputEvent;
+									if(outputEvent != null)
+										Log.Write(outputEvent.output);
 								}
 							}
 						}
 					}
 					catch (Exception e) {
 						responder.SetBody(new ErrorResponseBody(new Message(1104, "error while processing request '{_request}' (exception: {_exception})", new { _request = command, _exception = e.Message })));
+
+						var message = string.Format("error while processing request '{0}' (exception: {1})", command, e.Message);
+						var outputEvent = new OutputEvent(message);
+
+						responder.AddEvent(outputEvent.type, outputEvent);
+						Log.Write(message);
 					}
 
 					if (command == "disconnect") {
