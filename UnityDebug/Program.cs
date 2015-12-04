@@ -1,14 +1,26 @@
 ﻿using System;
 using System.IO;
 using OpenDebug;
+using MonoDevelop.Debugger.Soft.Unity;
 
 namespace UnityDebug
 {
 	public class Program
 	{
+		class Logger : UnityProcessDiscovery.ILogger
+		{
+			public void Log(string message)
+			{
+				UnityDebug.Log.Write (message);
+			}
+		};
+
 		static void Main(string[] argv)
 		{
 			Log.Write ("UnityDebug");
+
+			UnityProcessDiscovery.AddLogger (new Logger());
+
 			try
 			{
 				Dispatch(Console.OpenStandardInput(), Console.OpenStandardOutput());
