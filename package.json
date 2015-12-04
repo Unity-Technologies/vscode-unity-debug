@@ -10,6 +10,7 @@
         "debuggers": [{
             "type": "unity",
             "label": "Unity Debugger",
+            "configurationAttributes": { "launch": {} },
 
             "enableBreakpointsFor": { "languageIds": ["csharp"] },
 
