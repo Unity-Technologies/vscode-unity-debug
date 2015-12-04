@@ -27,7 +27,11 @@ namespace UnityDebug
 			if (!targetNameToProcessName.TryGetValue (targetName.ToLower (), out processName))
 				return null;
 
-			return UnityProcessDiscovery.GetAttachableProcesses ().Where (p => p.Name.Contains (processName));
+			var processes = UnityProcessDiscovery.GetAttachableProcesses ();
+
+			processes.ForEach(p => Log.Write("Found Unity process: " + p.Name + " (" + p.Id + ")"));
+
+			return processes.Where (p => p.Name.Contains (processName));
 		}
 	}
 }
