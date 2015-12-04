@@ -117,6 +117,19 @@
     <Compile Include="UnityDebugSession.cs" />
     <Compile Include="UnityEngineFactory.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\PlayerConnection.cs">
+      <Link>MonoDevelop.Debugger.Soft.Unity\PlayerConnection.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\UnityProcessDiscovery.cs">
+      <Link>MonoDevelop.Debugger.Soft.Unity\UnityProcessDiscovery.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\UnityProcessInfo.cs">
+      <Link>MonoDevelop.Debugger.Soft.Unity\UnityProcessInfo.cs</Link>
+    </Compile>
+    <Compile Include="UnityAttach.cs" />
+    <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\UnityAttachInfo.cs">
+      <Link>MonoDevelop.Debugger.Soft.Unity\UnityAttachInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -124,5 +137,6 @@
     <Folder Include="MonoDebug\common\" />
     <Folder Include="MonoDebug\softdebug\" />
     <Folder Include="MonoDebug\softdebug\src\" />
+    <Folder Include="MonoDevelop.Debugger.Soft.Unity\" />
   </ItemGroup>
 </Project>

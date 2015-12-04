@@ -14,6 +14,7 @@ using System.Net;
 using Mono.Debugger.Client;
 using Mono.Debugging.Client;
 using OpenDebug;
+using MonoDevelop.Debugger.Soft.Unity;
 
 namespace UnityDebug
 {
@@ -27,6 +28,7 @@ namespace UnityDebug
 		private Handles<Mono.Debugging.Client.StackFrame> _frameHandles;
 		private ObjectValue _exception;
 		private Dictionary<int, OpenDebug.Thread> _seenThreads = new Dictionary<int, OpenDebug.Thread>();
+		IUnityDbgConnector unityDebugConnector;
 
 		public UnityDebugSession (Action<DebugEvent> callback) : base(true)
 		{
@@ -98,27 +100,34 @@ namespace UnityDebug
 		public override Task<DebugResult> Attach(dynamic args)
 		{
 			string name = getString (args, "name");
-			var nameLower = name.ToLower ();
 
-			if (nameLower.Contains ("unity") && nameLower.Contains ("editor")) {
-				var editorProcess = FindUnityEditorProcess ();
+			var processes = UnityAttach.GetAttachableProcesses (name).ToArray ();
 
-				if (editorProcess == null)
-					return Task.FromResult (new DebugResult (8001, "Could not find Unity editor process", new {}));
+			if (processes.Length == 0)
+				return Task.FromResult (new DebugResult (8001, "Unknown target name '{_name}'. Did you mean 'Unity Editor'?", new { _name = name}));
 
-				Debugger.Connect (IPAddress.Loopback, GetDebuggerPort(editorProcess));
+			if(processes.Length > 1)
+				return Task.FromResult (new DebugResult (8002, "Multiple targets with name '{_name}' running. Unable to connect.", new { _name = name}));
 
-				var debugResult = new DebugResult ();
-				debugResult.Add(new OutputEvent("UnityDebug: Attached to Unity editor process '" + editorProcess.ProcessName + "' (" + editorProcess.Id + ")\n"));
+			var process = processes [0];
 
-				return Task.FromResult (debugResult);
-			}
+			var attachInfo = UnityProcessDiscovery.GetUnityAttachInfo (process.Id, ref unityDebugConnector);
 
-			return Task.FromResult (new DebugResult (8002, "Unknown target name '{_name}'. Did you mean 'Unity Editor'?", new { _name = name}));
+			Debugger.Connect (attachInfo.Address, attachInfo.Port);
+
+			var debugResult = new DebugResult ();
+			debugResult.Add(new OutputEvent("UnityDebug: Attached to Unity process '" + process.Name + "' (" + process.Id + ")\n"));
+
+			return Task.FromResult (debugResult);
 		}
 
 		public override Task<DebugResult> Disconnect()
 		{
+			if (unityDebugConnector != null) {
+				unityDebugConnector.OnDisconnect ();
+				unityDebugConnector = null;
+			}
+
 			Debugger.Disconnect();
 			return Task.FromResult(new DebugResult());
 		}
@@ -449,37 +458,6 @@ namespace UnityDebug
 			}
 			return s;
 		}
-
-		System.Diagnostics.Process FindUnityEditorProcess()
-		{
-			var processes = System.Diagnostics.Process.GetProcesses ();
-
-			if (null != processes) {
-				foreach (System.Diagnostics.Process p in processes) {
-					try {
-						if ((p.ProcessName.StartsWith ("unity", StringComparison.OrdinalIgnoreCase) ||
-							p.ProcessName.Contains ("Unity.app")) &&
-							!p.ProcessName.Contains ("UnityDebug") &&
-							!p.ProcessName.Contains ("UnityShader") &&
-							!p.ProcessName.Contains ("UnityHelper") &&
-							!p.ProcessName.Contains ("Unity Helper")) 
-						{
-							return p;
-						}
-					} catch {
-						// Don't care; continue
-					}
-				}
-			}
-
-			return null;
-		}
-
-		int GetDebuggerPort(System.Diagnostics.Process p)
-		{
-			return 56000 + (p.Id % 1000);
-		}
-		
 	}
 }
 

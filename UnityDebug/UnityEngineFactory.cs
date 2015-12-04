@@ -8,7 +8,7 @@ namespace UnityDebug
 		public static IDebugSession CreateDebugSession(string adapterID, Action<DebugEvent> callback)
 		{
 			if (adapterID == "unity")
-				return new UnityDebug.UnityDebugSession (callback);
+				return new UnityDebugSession (callback);
 
 			return null;
 		}
