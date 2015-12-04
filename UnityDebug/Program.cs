@@ -82,7 +82,7 @@ namespace UnityDebug
 					catch (Exception e) {
 						responder.SetBody(new ErrorResponseBody(new Message(1104, "error while processing request '{_request}' (exception: {_exception})", new { _request = command, _exception = e.Message })));
 
-						var message = string.Format("error while processing request '{0}' (exception: {1})", command, e.Message);
+						var message = string.Format("error while processing request '{0}' (exception: {1})\n{2}", command, e.Message, e);
 						var outputEvent = new OutputEvent(message);
 
 						responder.AddEvent(outputEvent.type, outputEvent);
