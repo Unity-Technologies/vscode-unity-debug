@@ -301,11 +301,15 @@ namespace UnityDebug
 						// Wait for all values at once.
 						WaitHandle.WaitAll(children.Select(x => x.WaitHandle).ToArray());
 						foreach (var v in children) {
-							variables.Add(CreateVariable(v));
+							if (v.IsError)
+								continue;
+								variables.Add(CreateVariable(v));
 						}
 					}
 					else {
 						foreach (var v in children) {
+							if (v.IsError)
+								continue;
 							v.WaitHandle.WaitOne();
 							variables.Add(CreateVariable(v));
 						}
