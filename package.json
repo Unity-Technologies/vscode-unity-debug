@@ -53,16 +53,6 @@
                 "name": "Android Player",
                 "type": "unity",
                 "request": "launch"
-            }, {
-
-                "name": "Windows WebPlayer",
-                "type": "unity",
-                "request": "launch"
-            }, {
-
-                "name": "OSX WebPlayer",
-                "type": "unity",
-                "request": "launch"
             }]
         }]
     }

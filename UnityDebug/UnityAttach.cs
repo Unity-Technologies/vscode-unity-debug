@@ -11,11 +11,8 @@ namespace UnityDebug
 		{
 			{ "unity editor", "Unity Editor" },
 			{ "osx player", "OSXPlayer" },
-			{ "osx webplayer", "OSXWebPlayer" },
 			{ "windows player", "WindowsPlayer" },
-			{ "windows webplayer", "WindowsWebPlayer" },
 			{ "linux player", "WindowsPlayer" },
-			{ "linux webplayer", "WindowsWebPlayer" },
 			{ "ios player", "iPhonePlayer" },
 			{ "android player", "AndroidPlayer" }
 		};
