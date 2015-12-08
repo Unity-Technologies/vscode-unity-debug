@@ -54,9 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\MonoDebug\src\MonoDebugSession.cs">
-      <Link>MonoDebug\MonoDebugSession.cs</Link>
-    </Compile>
     <Compile Include="..\MonoDebug\src\common\Events.cs">
       <Link>MonoDebug\common\Events.cs</Link>
     </Compile>
@@ -66,14 +63,8 @@
     <Compile Include="..\MonoDebug\src\common\IDebugSession.cs">
       <Link>MonoDebug\common\IDebugSession.cs</Link>
     </Compile>
-    <Compile Include="..\MonoDebug\src\common\PathUtilities.cs">
-      <Link>MonoDebug\common\PathUtilities.cs</Link>
-    </Compile>
     <Compile Include="..\MonoDebug\src\common\Results.cs">
       <Link>MonoDebug\common\Results.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\src\common\Terminal.cs">
-      <Link>MonoDebug\common\Terminal.cs</Link>
     </Compile>
     <Compile Include="..\MonoDebug\src\common\Types.cs">
       <Link>MonoDebug\common\Types.cs</Link>
