@@ -1,12 +1,25 @@
 UnityDebug - Unity Debugger Extension for Visual Studio Code
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Git: https://github.com/Unity-Technologies/vscode-unity-debug
 
 Changes
 -------
 
+0.5.0
+=====
+
+- Added support for attaching to Windows, OSX, Linux, Android and iOS players
+
+- Added log file
+  OSX/Linux: ${HOME}/.vscode/extensions/UnityDebug-log.txt
+  Windows: %USERPROFILE%\.vscode\extensions\UnityDebug-log.txt
+
+- Fix issue with "unity" being marked as unknown "type" in launch.json
+
 0.1.0
 =====
+
 - Initial release.
+
 - Only attaching to Unity editor is supported.

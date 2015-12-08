@@ -1,6 +1,6 @@
 {
     "name": "unity-debug",
-    "version": "0.1.0",
+    "version": "0.5.0",
     "publisher": "Unity Technologies",
     "description": "Unity debug extension",
     "engines": {
