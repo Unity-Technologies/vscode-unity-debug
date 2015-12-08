@@ -122,6 +122,14 @@
       <Link>MonoDevelop.Debugger.Soft.Unity\UnityAttachInfo.cs</Link>
     </Compile>
     <Compile Include="Log.cs" />
+    <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\iOSOverUsbSupport.cs">
+      <Link>MonoDevelop.Debugger.Soft.Unity\iOSOverUsbSupport.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\Log.cs">
+      <Link>MonoDevelop.Debugger.Soft.Unity\Log.cs</Link>
+    </Compile>
+    <Compile Include="Platform.cs" />
+    <Compile Include="Util.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

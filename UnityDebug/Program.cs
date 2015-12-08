@@ -7,19 +7,30 @@ namespace UnityDebug
 {
 	public class Program
 	{
-		class Logger : UnityProcessDiscovery.ILogger
+		class Logger : MonoDevelop.Debugger.Soft.Unity.Log.ILogger
 		{
-			public void Log(string message)
+			public void Info(string message)
 			{
-				UnityDebug.Log.Write (message);
+				Log.Write (message);
 			}
+
+			public void Warning(string message, Exception e)
+			{
+				Log.Write (message);
+			}
+
+			public void Error(string message, Exception e)
+			{
+				Log.Write (message);
+			}
+
 		};
 
 		static void Main(string[] argv)
 		{
 			Log.Write ("UnityDebug");
 
-			UnityProcessDiscovery.AddLogger (new Logger());
+			MonoDevelop.Debugger.Soft.Unity.Log.AddLogger (new Logger());
 
 			try
 			{
