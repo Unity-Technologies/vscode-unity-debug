@@ -21,6 +21,11 @@
     "url": "https://github.com/Unity-Technologies/vscode-unity-debug/issues"
   },
 
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Unity-Technologies/vscode-unity-debug.git"
+  },
+
   "icon" : "Images/unity-logo128x128.png",
 
   "contributes": {
