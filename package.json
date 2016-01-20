@@ -1,59 +1,82 @@
 {
-    "name": "unity-debug",
-    "version": "0.5.0",
-    "publisher": "Unity Technologies",
-    "description": "Unity debug extension",
-    "engines": {
-        "vscode": "0.10.x"
-    },
-    "categories": ["Debuggers"],
+  "name": "unity-debug",
+  "displayName": "Debugger for Unity",
+  "version": "1.0.0",
+  "publisher": "Unity",
+  "description": "Unity debugger extension",
+  "engines": {
+    "vscode": "0.10.x"
+  },
+  "categories": [
+    "Debuggers"
+  ],
+  "keywords": [
+    "unity",
+    "unity3d",
+    "debugger",
+    "debug"
+  ],
+  "homepage": "https://github.com/Unity-Technologies/vscode-unity-debug",
+  "bugs": {
+    "url": "https://github.com/Unity-Technologies/vscode-unity-debug/issues"
+  },
 
-    "contributes": {
-        "debuggers": [{
+  "icon" : "Images/unity-logo128x128.png",
+
+  "contributes": {
+    "debuggers": [
+      {
+        "type": "unity",
+        "label": "Unity Debugger",
+        "configurationAttributes": {
+          "launch": {},
+          "attach": {}
+        },
+        "enableBreakpointsFor": {
+          "languageIds": [
+            "csharp"
+          ]
+        },
+        "program": "./bin/UnityDebug.exe",
+        "osx": {
+          "runtime": "mono"
+        },
+        "linux": {
+          "runtime": "mono"
+        },
+        "initialConfigurations": [
+          {
+            "name": "Unity Editor",
             "type": "unity",
-            "label": "Unity Debugger",
-            "configurationAttributes": {
-                "launch": {},
-                "attach": {}
-            },
-
-            "enableBreakpointsFor": {
-                "languageIds": ["csharp"]
-            },
-
-            "program": "./bin/UnityDebug.exe",
-            "osx": {
-                "runtime": "mono"
-            },
-            "linux": {
-                "runtime": "mono"
-            },
-
-            "initialConfigurations": [{
-                "name": "Unity Editor",
-                "type": "unity",
-                "request": "launch"
-            }, {
-                "name": "Windows Player",
-                "type": "unity",
-                "request": "launch"
-            }, {
-                "name": "OSX Player",
-                "type": "unity",
-                "request": "launch"
-            }, {
-                "name": "Linux Player",
-                "type": "unity",
-                "request": "launch"
-            }, {
-                "name": "iOS Player",
-                "type": "unity",
-                "request": "launch"
-            }, {
-                "name": "Android Player",
-                "type": "unity",
-                "request": "launch"
-            }]
-        }]
-    }
+            "request": "launch"
+          },
+          {
+            "name": "Windows Player",
+            "type": "unity",
+            "request": "launch"
+          },
+          {
+            "name": "OSX Player",
+            "type": "unity",
+            "request": "launch"
+          },
+          {
+            "name": "Linux Player",
+            "type": "unity",
+            "request": "launch"
+          },
+          {
+            "name": "iOS Player",
+            "type": "unity",
+            "request": "launch"
+          },
+          {
+            "name": "Android Player",
+            "type": "unity",
+            "request": "launch"
+          }
+        ]
+      }
+    ]
+  }
 }

@@ -1,5 +1,9 @@
 *
-*/**
+**
 **/.DS_Store
-!bin/
+**/.mdb
 !package.json
+!bin/**
+!Changelog.txt
+!README.md
+!Images/unity-logo128x128.png
