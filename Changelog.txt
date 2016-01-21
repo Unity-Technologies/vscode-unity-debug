@@ -6,6 +6,11 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+1.0.1
+=====
+
+- Fixed issue with using "Add Watch" not generating valid expressions.
+
 1.0.0
 =====
 
