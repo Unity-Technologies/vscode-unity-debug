@@ -354,8 +354,35 @@ namespace UnityDebug
 		{
 			string error = null;
 
+			// Parse expressions created by using "Add Watch" in VS Code.
+			// Add Watch expressions examples:
+			// Done_PlayerController this.UnityEngine.GameObject gameObject.UnityEngine.SceneManagement.Scene scene.bool isLoaded
+			// Done_PlayerController this.UnityEngine.GameObject gameObject. Static members. Non-public members.int OffsetOfInstanceIDInCPlusPlusObject
+
+			var exp = expression.Replace ("Static members.", "").Replace ("Non-public members.", "");
+			var expStrings = exp.Split (' ');
+			var parsedExpression = "";
+
+			if (expStrings.Length > 1) 
+			{
+				foreach (var subexp in expStrings) 
+				{
+					int index = subexp.IndexOf ('.');
+
+					if (index > 0) 
+						parsedExpression += subexp.Substring (0, index + 1);
+				}
+
+				parsedExpression += expStrings.Last ();
+				Log.Write ("Parsed Expression: '" + expression + "' -> '" + parsedExpression + "'");
+			}
+
 			var frame = _frameHandles.Get(frameId, null);
 			if (frame != null) {
+
+				if (!frame.ValidateExpression(expression) && parsedExpression.Length > 0 && frame.ValidateExpression (parsedExpression))
+					expression = parsedExpression;
+
 				if (frame.ValidateExpression(expression)) {
 					var val = frame.GetExpressionValue(expression, Debugger.Options.EvaluationOptions);
 					val.WaitHandle.WaitOne();
