@@ -359,7 +359,8 @@ namespace UnityDebug
 			// Done_PlayerController this.UnityEngine.GameObject gameObject.UnityEngine.SceneManagement.Scene scene.bool isLoaded
 			// Done_PlayerController this.UnityEngine.GameObject gameObject. Static members. Non-public members.int OffsetOfInstanceIDInCPlusPlusObject
 
-			var exp = expression.Replace ("Static members.", "").Replace ("Non-public members.", "");
+			// Replace "Static members" and "Non-public members" with strings without spaces, so we can Split the string correctly.
+			var exp = expression.Replace ("Static members.", "static-members").Replace ("Non-public members.", "non-public-members");
 			var expStrings = exp.Split (' ');
 			var parsedExpression = "";
 
@@ -367,6 +368,14 @@ namespace UnityDebug
 			{
 				foreach (var subexp in expStrings) 
 				{
+					// Skip static and non public members substrings
+					if (subexp.StartsWith ("static-members") || subexp.StartsWith ("non-public-members"))
+						continue;
+
+					// If array operator, remove previous '.'
+					if (subexp.StartsWith ("["))
+						parsedExpression = parsedExpression.Substring (0, parsedExpression.Length - 1);
+
 					int index = subexp.IndexOf ('.');
 
 					if (index > 0) 
