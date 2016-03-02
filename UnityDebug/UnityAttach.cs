@@ -24,7 +24,14 @@ namespace UnityDebug
 			if (!targetNameToProcessName.TryGetValue (targetName.ToLower (), out processName))
 				return null;
 
-			var processes = UnityProcessDiscovery.GetAttachableProcesses ();
+			UnityProcessDiscovery.GetProcessOptions options = UnityProcessDiscovery.GetProcessOptions.All;
+
+			if (processName == "Unity Editor")
+				options = UnityProcessDiscovery.GetProcessOptions.Editor;
+			else
+				options = UnityProcessDiscovery.GetProcessOptions.Players;
+
+			var processes = UnityProcessDiscovery.GetAttachableProcesses (options);
 
 			processes.ForEach(p => Log.Write("Found Unity process: " + p.Name + " (" + p.Id + ")"));
 

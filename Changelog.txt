@@ -11,6 +11,7 @@ Changes
 
 - Improved support expression when using "Add Watch"
 - Update debugger protocol to latest.
+- Attaching to the Unity Editor is faster.
 
 1.0.1
 =====
