@@ -1,11 +1,11 @@
 {
   "name": "unity-debug",
   "displayName": "Debugger for Unity",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "Unity",
   "description": "Unity debugger extension",
   "engines": {
-    "vscode": "0.10.x"
+    "vscode": "^0.10.1"
   },
   "categories": [
     "Debuggers"
