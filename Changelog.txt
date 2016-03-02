@@ -29,8 +29,8 @@ Changes
 - Added support for attaching to Windows, OSX, Linux, Android and iOS players
 
 - Added log file
-  OSX/Linux: ${HOME}/.vscode/extensions/UnityDebug-log.txt
-  Windows: %USERPROFILE%\.vscode\extensions\UnityDebug-log.txt
+  OSX/Linux: ${HOME}/.vscode/extensions/bin/UnityDebug-log.txt
+  Windows: %USERPROFILE%\.vscode\extensions\bin\UnityDebug-log.txt
 
 - Fix issue with "unity" being marked as unknown "type" in launch.json
 
