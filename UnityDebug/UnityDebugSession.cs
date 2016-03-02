@@ -101,6 +101,8 @@ namespace UnityDebug
 
 		public override void Initialize(Response response, dynamic args)
 		{
+			SendOutput("stdout", "UnityDebug: Initializing");
+
 			SendResponse(response, new Capabilities() {
 				// This debug adapter does not need the configurationDoneRequest.
 				supportsConfigurationDoneRequest = false,
@@ -131,6 +133,8 @@ namespace UnityDebug
 		{
 			string name = getString (args, "name");
 
+			SendOutput("stdout", "UnityDebug: Searching for Unity process '" + name + "'");
+
 			var processes = UnityAttach.GetAttachableProcesses (name).ToArray ();
 
 			if (processes == null) {
@@ -153,6 +157,7 @@ namespace UnityDebug
 
 			Debugger.Connect (attachInfo.Address, attachInfo.Port);
 
+			SendOutput("stdout", "UnityDebug: Attached to Unity process '" + process.Name + "' (" + process.Id + ")\n");
 			SendResponse(response);
 		}
 
@@ -164,6 +169,7 @@ namespace UnityDebug
 			}
 
 			Debugger.Disconnect();
+			SendOutput("stdout", "UnityDebug: Disconnected");
 			SendResponse(response);
 		}
 
