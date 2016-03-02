@@ -9,9 +9,14 @@ Changes
 1.0.2
 =====
 
-- Improved support expression when using "Add Watch"
-- Update debugger protocol to latest.
+- Improved support for expressions added with "Add Watch"
+
+- Fixed issue with being unable to attach to Unity editor on Ubuntu, when
+  using Unity graphical shell.
+
 - Attaching to the Unity Editor is faster.
+
+- Update debugger protocol to latest version.
 
 1.0.1
 =====
