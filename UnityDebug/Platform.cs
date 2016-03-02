@@ -4,17 +4,17 @@
 	{
 		public static bool IsLinux
 		{
-			get { return OpenDebug.Utilities.IsLinux(); }
+			get { return VSCodeDebug.Utilities.IsLinux(); }
 		}
 
 		public static bool IsMac
 		{
-			get { return OpenDebug.Utilities.IsOSX(); }
+			get { return VSCodeDebug.Utilities.IsOSX(); }
 		}
 
 		public static bool IsWindows
 		{
-			get { return OpenDebug.Utilities.IsWindows(); }
+			get { return VSCodeDebug.Utilities.IsWindows(); }
 		}
 	}
 }
