@@ -114,10 +114,10 @@
     </Compile>
     <Compile Include="Platform.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="..\..\vscode-mono-debug\src\DebugSession.cs">
+    <Compile Include="..\MonoDebug\src\DebugSession.cs">
       <Link>MonoDebug\common\DebugSession.cs</Link>
     </Compile>
-    <Compile Include="..\..\vscode-mono-debug\src\Protocol.cs">
+    <Compile Include="..\MonoDebug\src\Protocol.cs">
       <Link>MonoDebug\common\Protocol.cs</Link>
     </Compile>
     <Compile Include="..\MonoDebug\src\Handles.cs">
