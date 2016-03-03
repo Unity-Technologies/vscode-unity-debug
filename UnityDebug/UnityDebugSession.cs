@@ -149,6 +149,13 @@ namespace UnityDebug
 
 			if (processes.Length > 1) {
 				SendErrorResponse (response, 8002, "Multiple targets with name '{_name}' running. Unable to connect.", new { _name = name});
+
+				SendOutput("stdout", "UnityDebug: Multiple targets with name '" + name + "' running. Unable to connect");
+
+				foreach(var p in processes)
+					SendOutput("stdout", "UnityDebug: Found Unity process '" + p.Name + "' (" + p.Id + ")\n");
+
+				return;
 			}
 
 			var process = processes [0];
