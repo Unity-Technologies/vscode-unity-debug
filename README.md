@@ -4,13 +4,13 @@ Use Visual Studio Code to debug your Unity C# projects.
 
 ## Setup
 
-- Open the your Unity project folder in the Visual Studio Code.
+- Open your Unity project folder in the Visual Studio Code.
 
 - Select the debug view on the left and click the cogwheel.
 
 ![Debug View](Screenshots/vscode-debug-view.png)
 
-- In the drop down list select “Unity Debugger”. If you do not have Unity Debugger in the list, that means you already have a .vscode/Launch.json file in your project that you must delete first.
+- In the drop down list select “Unity Debugger”. If you do not have Unity Debugger in the list, then you already have a .vscode/Launch.json file in your project that you must delete first.
 
 ![Debugger List](Screenshots/vscode-debugger-list.png)
 
