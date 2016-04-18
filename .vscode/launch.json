@@ -10,8 +10,7 @@
 				"--extensionDevelopmentPath=${workspaceRoot}"
 			],
 			"stopOnEntry": false,
-			"sourceMaps": true,
-			"outDir": "out"
+			"sourceMaps": true
 		}
 	]
 }
