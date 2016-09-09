@@ -245,7 +245,7 @@ namespace UnityDebug
 			var bpts = new List<Tuple<int, int>>();
 			foreach (var be in Debugger.Breakpoints) {
 				var bp = be.Value as Mono.Debugging.Client.Breakpoint;
-				if (bp != null && bp.FileName == path) {
+				if (bp != null && string.Equals(bp.FileName, path, StringComparison.OrdinalIgnoreCase)) {
 					bpts.Add(new Tuple<int,int>((int)be.Key, (int)bp.Line));
 				}
 			}
