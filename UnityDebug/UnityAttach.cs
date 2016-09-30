@@ -21,8 +21,10 @@ namespace UnityDebug
 		{
 			string processName;
 
-			if (!targetNameToProcessName.TryGetValue (targetName.ToLower (), out processName))
-				return null;
+			if(!targetNameToProcessName.TryGetValue (targetName.ToLower (), out processName))
+			{
+				processName = targetName;
+			}
 
 			UnityProcessDiscovery.GetProcessOptions options = UnityProcessDiscovery.GetProcessOptions.All;
 
