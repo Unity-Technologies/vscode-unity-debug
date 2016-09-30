@@ -1,6 +1,6 @@
-[submodule "MonoDebug"]
-	path = MonoDebug
-	url = https://github.com/Unity-Technologies/vscode-mono-debug.git
 [submodule "MonoDevelop.Debugger.Soft.Unity"]
 	path = MonoDevelop.Debugger.Soft.Unity
 	url = https://github.com/Unity-Technologies/MonoDevelop.Debugger.Soft.Unity
+[submodule "MonoDebug"]
+	path = MonoDebug
+	url = https://github.com/Unity-Technologies/vscode-mono-debug.git
