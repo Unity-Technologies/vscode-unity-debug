@@ -33,7 +33,10 @@ function activate(context) {
                     var call = vscode.commands.executeCommand("vscode.startDebug", config);
                     call.then(function(response){
                         console.log(response);
-                    })
+                    },function(error)
+                    {
+                        console.log(error);
+                    });
                 });
             }
         });
