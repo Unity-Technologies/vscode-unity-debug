@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using VSCodeDebug;
+using System.Linq;
 using MonoDevelop.Debugger.Soft.Unity;
 
 namespace UnityDebug
@@ -28,6 +29,12 @@ namespace UnityDebug
 
 		static void Main(string[] argv)
 		{
+			if(argv.Length > 0 && argv[0] == "list")
+			{
+				Console.Write(GetUnityProcesses());
+				return;
+			}
+
 			Log.Write ("UnityDebug");
 
 			MonoDevelop.Debugger.Soft.Unity.Log.AddLogger (new Logger());
@@ -46,6 +53,16 @@ namespace UnityDebug
 		{
 			DebugSession debugSession = new UnityDebugSession();
 			debugSession.Start(inputStream, outputStream).Wait();
+		}
+
+		public static string GetUnityProcesses()
+		{
+			var options = UnityProcessDiscovery.GetProcessOptions.All;
+
+
+			var processes = UnityProcessDiscovery.GetAttachableProcesses (options);
+
+			return string.Join("\n", processes.Select(x => x.Name));
 		}
 	}
 }
