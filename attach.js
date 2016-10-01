@@ -3,7 +3,7 @@ var exec = require('child_process').exec;
 
 function activate(context) {
 
-    var disposable = vscode.commands.registerCommand('extension.sayHello', function () {
+    var disposable = vscode.commands.registerCommand('attach.attachToDebugger', function () {
 
         exec(context.extensionPath + "/bin/UnityDebug.exe list", function(error, stdout, stderr) {
             var processes = [];

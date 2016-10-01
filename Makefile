@@ -11,7 +11,7 @@ $UNITY_DEBUG:
 
 zip: $UNITY_DEBUG
 	rm -f unity-debug.zip
-	zip -r9 unity-debug.zip bin/ extension.js package.json Changelog.txt -x "*.DS_Store"
+	zip -r9 unity-debug.zip bin/ attach.js package.json Changelog.txt -x "*.DS_Store"
 
 vsix: clean $UNITY_DEBUG
 	rm -f *.vsix

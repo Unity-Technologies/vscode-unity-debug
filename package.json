@@ -28,16 +28,16 @@
 
   "icon" : "Images/unity-logo128x128.png",
 
-  "main": "./extension",
+  "main": "./attach",
   "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:attach.attachToDebugger"
     ],
     "scripts": {
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
   "contributes": {
     "commands": [{
-            "command": "extension.sayHello",
+            "command": "attach.attachToDebugger",
             "title": "Unity Attach Debugger"
         }],
     "debuggers": [
