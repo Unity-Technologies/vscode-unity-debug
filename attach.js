@@ -21,8 +21,13 @@ function activate(context) {
             {
                 vscode.window.showErrorMessage("No Unity Process Found.");
             }else{
-                var pick = vscode.window.showQuickPick(processes);
-                pick.then(function(string){
+                vscode.window.showQuickPick(processes)
+                .then(function(string){
+
+                    if(!string)
+                    {
+                        return;
+                    }
 
                     var config = {
                         name:string,
@@ -37,6 +42,7 @@ function activate(context) {
                     {
                         console.log(error);
                     });
+
                 });
             }
         });
