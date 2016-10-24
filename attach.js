@@ -5,7 +5,12 @@ function activate(context) {
 
     var disposable = vscode.commands.registerCommand('attach.attachToDebugger', function () {
 
-        exec(context.extensionPath + "/bin/UnityDebug.exe list", function(error, stdout, stderr) {
+        var execCommand = "";
+
+        if(process.platform !== 'win32')
+            execCommand = "mono ";
+
+        exec(execCommand + context.extensionPath + "/bin/UnityDebug.exe list", function(error, stdout, stderr) {
             var processes = [];
 
             var lines = stdout.split("\n");
