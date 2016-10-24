@@ -28,7 +28,18 @@
 
   "icon" : "Images/unity-logo128x128.png",
 
+  "main": "./attach",
+  "activationEvents": [
+        "onCommand:attach.attachToDebugger"
+    ],
+    "scripts": {
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
   "contributes": {
+    "commands": [{
+            "command": "attach.attachToDebugger",
+            "title": "Unity Attach Debugger"
+        }],
     "debuggers": [
       {
         "type": "unity",
