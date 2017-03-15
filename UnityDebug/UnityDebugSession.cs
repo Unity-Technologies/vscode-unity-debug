@@ -311,6 +311,10 @@ namespace UnityDebug
 					string path = frame.SourceLocation.FileName;
 					int line = frame.SourceLocation.Line;
 					string sourceName = Path.GetFileName(path);
+					if (sourceName == null)
+					{
+						sourceName = string.Empty;
+					}
 
 					var source = new Source(sourceName, ConvertDebuggerPathToClient(path));
 					stackFrames.Add(new VSCodeDebug.StackFrame(frameHandle, name, source, ConvertDebuggerLineToClient(line), 0));
