@@ -113,8 +113,8 @@ namespace UnityDebug
 				// This debug adapter doesn't support conditional breakpoints.
 				supportsConditionalBreakpoints = false,
 
-				// This debug adapter does not support a side effect free evaluate request for data hovers.
-				supportsEvaluateForHovers = false,
+				// This debug adapter does support a side effect free evaluate request for data hovers.
+				supportsEvaluateForHovers = true,
 
 				// This debug adapter does not support exception breakpoint filters
 				exceptionBreakpointFilters = new dynamic[0]
@@ -311,6 +311,10 @@ namespace UnityDebug
 					string path = frame.SourceLocation.FileName;
 					int line = frame.SourceLocation.Line;
 					string sourceName = Path.GetFileName(path);
+					if (sourceName == null)
+					{
+						sourceName = string.Empty;
+					}
 
 					var source = new Source(sourceName, ConvertDebuggerPathToClient(path));
 					stackFrames.Add(new VSCodeDebug.StackFrame(frameHandle, name, source, ConvertDebuggerLineToClient(line), 0));
@@ -476,6 +480,12 @@ namespace UnityDebug
 						}
 						else if (flags.HasFlag(ObjectValueFlags.Unknown)) {
 							error = "invalid expression";
+							// maybe user hovered this's member
+							if (!expression.StartsWith("this", System.StringComparison.Ordinal)) {
+								args["expression"] = "this." + expression;
+								Evaluate(response, args);
+								return;
+							}
 						}
 						else if (flags.HasFlag(ObjectValueFlags.Object) && flags.HasFlag(ObjectValueFlags.Namespace)) {
 							error = "not available";
