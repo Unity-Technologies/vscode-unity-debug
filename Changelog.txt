@@ -6,6 +6,13 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+1.2.0
+=====
+ - Add support for hovering on variables. Patch contributed by JohnPoison.
+ - Update debugger client library to latest version. Fixes debugging issues in Unity 5.5 and above.
+ - Fix issue with not being able to attach if unityiproxy (Unity Remote) process is running.
+ - Added MIT LICENSE.txt
+
 1.1.0
 =====
  - Added "Unity Attach Debugger" to command palette. Patch contributed by Dominick.
