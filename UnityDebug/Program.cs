@@ -27,6 +27,24 @@ namespace UnityDebug
 
 		};
 
+		class CustomLogger : Mono.Debugging.Client.ICustomLogger
+		{
+			public void LogAndShowException(string message, Exception ex)
+			{
+				LogError(message, ex);
+			}
+
+			public void LogError(string message, Exception ex)
+			{
+				Log.Write(message + (ex != null ? System.Environment.NewLine + ex.ToString() : string.Empty));
+			}
+
+			public void LogMessage(string messageFormat, params object[] args)
+			{
+				Log.Write(String.Format(messageFormat, args));
+			}
+		}
+
 		static void Main(string[] argv)
 		{
 			if(argv.Length > 0 && argv[0] == "list")
@@ -52,6 +70,7 @@ namespace UnityDebug
 		private static void RunSession(Stream inputStream, Stream outputStream)
 		{
 			DebugSession debugSession = new UnityDebugSession();
+			Mono.Debugging.Client.DebuggerLoggingService.CustomLogger = new CustomLogger();
 			debugSession.Start(inputStream, outputStream).Wait();
 		}
 
