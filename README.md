@@ -29,3 +29,14 @@ New in version 1.1.0 it is now possible to select which Unity process you want t
 - Wait a bit for the Unity processes list to appear at the top of the VS Code window.
 
 - Select the Unity process you wish to attach the debugger to.
+
+## Building
+
+To build this repository, clone it then get all submodules:
+
+```bash
+git clone https://github.com/Unity-Technologies/vscode-unity-debug
+cd vscode-unity-debug
+git submodule update --init --recursive
+```
+Then open `VSCode-UnityDebug.sln` in Visual Studio.
