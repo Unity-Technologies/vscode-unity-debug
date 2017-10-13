@@ -488,6 +488,12 @@ namespace UnityDebug
 							}
 						}
 						else if (flags.HasFlag(ObjectValueFlags.Object) && flags.HasFlag(ObjectValueFlags.Namespace)) {
+							// fix for not seeing fields in .NET 4.6+
+							if (!expression.StartsWith("this", System.StringComparison.Ordinal)) {
+								args["expression"] = "this." + expression;
+								Evaluate(response, args);
+								return;
+							}
 							error = "not available";
 						}
 						else {
