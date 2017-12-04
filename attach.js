@@ -40,8 +40,8 @@ function activate(context) {
                         request:"launch"
                     };
 
-                    var call = vscode.commands.executeCommand("vscode.startDebug", config);
-                    call.then(function(response){
+                    vscode.debug.startDebugging(undefined, config)
+                    .then(function(response){
                         console.log(response);
                     },function(error)
                     {
