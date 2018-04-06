@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -59,37 +59,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MonoDebug\src\DebugSession.cs">
+      <Link>MonoDebug\DebugSession.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDebug\src\Handles.cs">
+      <Link>MonoDebug\Handles.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDebug\src\MonoDebug.cs">
+      <Link>MonoDebug\MonoDebug.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDebug\src\MonoDebugSession.cs">
+      <Link>MonoDebug\MonoDebugSession.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDebug\src\Protocol.cs">
+      <Link>MonoDebug\Protocol.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDebug\src\Utilities.cs">
+      <Link>MonoDebug\Utilities.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\MonoDebug\src\sdb\CommandLine.cs">
-      <Link>MonoDebug\softdebug\CommandLine.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\src\sdb\Debugger.cs">
-      <Link>MonoDebug\softdebug\Debugger.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\sdb\src\Color.cs">
-      <Link>MonoDebug\softdebug\src\Color.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\sdb\src\CommandAttribute.cs">
-      <Link>MonoDebug\softdebug\src\CommandAttribute.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\sdb\src\CustomLogger.cs">
-      <Link>MonoDebug\softdebug\src\CustomLogger.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\sdb\src\Log.cs">
-      <Link>MonoDebug\softdebug\src\Log.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\sdb\src\SessionKind.cs">
-      <Link>MonoDebug\softdebug\src\SessionKind.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\sdb\src\State.cs">
-      <Link>MonoDebug\softdebug\src\State.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\sdb\src\Utilities.cs">
-      <Link>MonoDebug\softdebug\src\Utilities.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\sdb\src\Configuration.cs">
-      <Link>MonoDebug\softdebug\src\Configuration.cs</Link>
-    </Compile>
     <Compile Include="UnityDebugSession.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\PlayerConnection.cs">
@@ -114,25 +102,10 @@
     </Compile>
     <Compile Include="Platform.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="..\MonoDebug\src\DebugSession.cs">
-      <Link>MonoDebug\common\DebugSession.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\src\Protocol.cs">
-      <Link>MonoDebug\common\Protocol.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\src\Handles.cs">
-      <Link>MonoDebug\common\Handles.cs</Link>
-    </Compile>
-    <Compile Include="..\MonoDebug\src\Utilities.cs">
-      <Link>MonoDebug\common\Utilities.cs</Link>
-    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="MonoDebug\" />
-    <Folder Include="MonoDebug\common\" />
-    <Folder Include="MonoDebug\softdebug\" />
-    <Folder Include="MonoDebug\softdebug\src\" />
     <Folder Include="MonoDevelop.Debugger.Soft.Unity\" />
   </ItemGroup>
 </Project>
