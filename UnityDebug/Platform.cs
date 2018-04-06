@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
 
 namespace MonoDevelop.Debugger.Soft.Unity
 {
@@ -29,6 +32,20 @@ namespace MonoDevelop.Debugger.Soft.Unity
 		 * Is this Linux?
 		 */
 		public static bool IsLinux => File.Exists(LINUX_TERM);
+		
+		public static bool IsLocal(string address)
+		{
+			try
+			{
+				if (address == "127.0.0.1")
+					return true;
+				return Dns.GetHostAddresses(Dns.GetHostName()).Any(ip => ip.ToString() == address);
+			}
+			catch
+			{
+				return false;
+			}
+		}
 	}
 }
 

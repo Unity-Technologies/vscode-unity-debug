@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
-using VSCodeDebug;
 using System.Linq;
+using System.Reflection;
+using Mono.Debugging.Client;
 using MonoDevelop.Debugger.Soft.Unity;
+using VSCodeDebug;
 
 namespace UnityDebug
 {
@@ -25,9 +27,9 @@ namespace UnityDebug
 				Log.Write (message);
 			}
 
-		};
+		}
 
-		class CustomLogger : Mono.Debugging.Client.ICustomLogger
+		class CustomLogger : ICustomLogger
 		{
 			public void LogAndShowException(string message, Exception ex)
 			{
@@ -36,12 +38,17 @@ namespace UnityDebug
 
 			public void LogError(string message, Exception ex)
 			{
-				Log.Write(message + (ex != null ? System.Environment.NewLine + ex.ToString() : string.Empty));
+				Log.Write(message + (ex != null ? Environment.NewLine + ex : string.Empty));
 			}
 
 			public void LogMessage(string messageFormat, params object[] args)
 			{
-				Log.Write(String.Format(messageFormat, args));
+				Log.Write(string.Format(messageFormat, args));
+			}
+
+			public string GetNewDebuggerLogFilename()
+			{
+				return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + "-log.txt");
 			}
 		}
 
@@ -67,19 +74,16 @@ namespace UnityDebug
 			}
 		}
 
-		private static void RunSession(Stream inputStream, Stream outputStream)
+		static void RunSession(Stream inputStream, Stream outputStream)
 		{
 			DebugSession debugSession = new UnityDebugSession();
-			Mono.Debugging.Client.DebuggerLoggingService.CustomLogger = new CustomLogger();
+			DebuggerLoggingService.CustomLogger = new CustomLogger();
 			debugSession.Start(inputStream, outputStream).Wait();
 		}
 
-		public static string GetUnityProcesses()
+		static string GetUnityProcesses()
 		{
-			var options = UnityProcessDiscovery.GetProcessOptions.All;
-
-
-			var processes = UnityProcessDiscovery.GetAttachableProcesses (options);
+			var processes = UnityProcessDiscovery.GetAttachableProcesses();
 
 			return string.Join("\n", processes.Select(x => x.Name));
 		}

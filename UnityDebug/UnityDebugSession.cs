@@ -13,6 +13,7 @@ using System.Net;
 using Mono.Debugging.Client;
 using VSCodeDebug;
 using MonoDevelop.Debugger.Soft.Unity;
+using MonoDevelop.Unity.Debugger;
 
 namespace UnityDebug
 {
@@ -64,7 +65,7 @@ namespace UnityDebug
 				EvaluationOptions = EvaluationOptions.DefaultOptions
 			};
 
-			_session = new Mono.Debugging.Soft.SoftDebuggerSession();
+			_session = new UnityDebuggerSession();
 			_session.Breakpoints = new BreakpointStore();
 
 			_breakpoints = new SortedDictionary<long, BreakEvent>();

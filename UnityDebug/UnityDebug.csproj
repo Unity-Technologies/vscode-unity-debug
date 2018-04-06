@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -7,7 +7,9 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>UnityDebug</RootNamespace>
     <AssemblyName>UnityDebug</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,16 +33,13 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MonoDevelop.Debugger, Version=2.6.0.0, Culture=neutral, PublicKeyToken=3ead7498f347467b">
+      <HintPath>..\External\MonoDevelop.Debugger.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoDevelop.Unity, Version=1.4.0.3, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>..\External\MonoDevelop.Unity.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\External\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>..\External\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Debugger.Soft">
-      <HintPath>..\External\Mono.Debugger.Soft.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Debugging.Soft">
       <HintPath>..\External\Mono.Debugging.Soft.dll</HintPath>
     </Reference>
@@ -51,12 +50,6 @@
       <HintPath>..\External\Mono.Debugging.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="ICSharpCode.NRefactory.CSharp">
-      <HintPath>..\External\ICSharpCode.NRefactory.CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.NRefactory">
-      <HintPath>..\External\ICSharpCode.NRefactory.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MonoDebug\src\DebugSession.cs">
@@ -76,6 +69,9 @@
     </Compile>
     <Compile Include="..\MonoDebug\src\Utilities.cs">
       <Link>MonoDebug\Utilities.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\UnityDebuggerStartInfo.cs">
+      <Link>MonoDevelop.Debugger.Soft.Unity\UnityDebuggerStartInfo.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnityDebugSession.cs" />
@@ -104,8 +100,8 @@
     <Compile Include="Util.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="MonoDebug\" />
-    <Folder Include="MonoDevelop.Debugger.Soft.Unity\" />
+    <None Include="app.config" />
   </ItemGroup>
 </Project>
