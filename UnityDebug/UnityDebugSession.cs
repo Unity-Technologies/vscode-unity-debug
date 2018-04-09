@@ -303,6 +303,8 @@ namespace UnityDebug
 					_breakpoints.Clear();
 					_session.Breakpoints.Clear();
 					_session.Continue();
+					_session.Detach();
+					_session.Adaptor.Dispose();
 					_session = null;
 				}
 			}
