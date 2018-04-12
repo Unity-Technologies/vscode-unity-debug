@@ -1,4 +1,4 @@
-﻿/*---------------------------------------------------------------------------------------------
+/*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Copyright (c) Unity Technologies.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -445,7 +445,7 @@ namespace UnityDebug
 				var l = ConvertClientLineToDebugger(clientLines[i]);
 				if (!lin2.Contains(l)) {
 					var id = _nextBreakpointId;
-					_breakpoints.Add(id, _session.Breakpoints.Add(path, l));
+					_breakpoints[id] = _session.Breakpoints.Add(path, l);
 					// Program.WriteLine("added bpt #{0} for line {1}", id, l);
 				}
 			}
