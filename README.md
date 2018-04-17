@@ -30,6 +30,10 @@ New in version 1.1.0 it is now possible to select which Unity process you want t
 
 - Select the Unity process you wish to attach the debugger to.
 
+## Usage
+
+Strings in the variable view is truncated to 100 characters, with appended ellipsis. "Example wor...". To view the entire value of this string add it to the watch fields. In addition, evaluating the variable using the debugger console will reveal the same result.
+
 ## Building
 
 To build this repository, clone it then get all submodules:

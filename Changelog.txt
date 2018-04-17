@@ -6,6 +6,14 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.1.0
+=====
+ - Added support for circumventing string truncation by disabling ellipsing on strings in watch field.
+
+2.0.1
+=====
+ - Fix duplicate key exception when assigning breakpoints.
+
 2.0.0
 =====
  - Updated packages to support .NET 4.6 runtime in Unity.

@@ -716,7 +716,9 @@ namespace UnityDebug
 				var frame = _frameHandles.Get(frameId, null);
 				if (frame != null) {
 					if (frame.ValidateExpression(expression)) {
-						var val = frame.GetExpressionValue(expression, _debuggerSessionOptions.EvaluationOptions);
+						var evaluationOptions = _debuggerSessionOptions.EvaluationOptions;
+						evaluationOptions.EllipsizeStrings = false;
+						var val = frame.GetExpressionValue(expression, evaluationOptions);
 						val.WaitHandle.WaitOne();
 
 						var flags = val.Flags;
