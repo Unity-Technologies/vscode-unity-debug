@@ -1,7 +1,7 @@
 {
   "name": "unity-debug",
   "displayName": "Debugger for Unity",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "publisher": "Unity",
   "description": "Unity debugger extension",
   "engines": {
