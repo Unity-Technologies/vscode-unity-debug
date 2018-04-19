@@ -14,6 +14,8 @@ using Mono.Debugging.Client;
 using VSCodeDebug;
 using MonoDevelop.Debugger.Soft.Unity;
 using MonoDevelop.Unity.Debugger;
+using Newtonsoft.Json.Linq;
+using Breakpoint = Mono.Debugging.Client.Breakpoint;
 
 namespace UnityDebug
 {
@@ -177,7 +179,7 @@ namespace UnityDebug
 				supportsFunctionBreakpoints = false,
 
 				// This debug adapter doesn't support conditional breakpoints.
-				supportsConditionalBreakpoints = false,
+				supportsConditionalBreakpoints = true,
 
 				// This debug adapter does support a side effect free evaluate request for data hovers.
 				supportsEvaluateForHovers = true,
@@ -490,8 +492,16 @@ namespace UnityDebug
 			}
 
 			var breakpoints = new List<VSCodeDebug.Breakpoint>();
-			foreach (var l in clientLines) {
+			foreach (var l in clientLines)
+			{
 				breakpoints.Add(new VSCodeDebug.Breakpoint(true, l));
+			}
+
+			SourceBreakpoint[] breaks = getBreakpoints(args, "breakpoints");
+			foreach (Breakpoint breakpoint in _session.Breakpoints)
+			{
+				var sourceBreakpoint = breaks.First(bp => bp.line == breakpoint.Line);
+				breakpoint.ConditionExpression = sourceBreakpoint.condition;
 			}
 
 			SendResponse(response, new SetBreakpointsResponseBody(breakpoints));
@@ -911,6 +921,13 @@ namespace UnityDebug
 				return dflt;
 			}
 			return s;
+		}
+
+		static SourceBreakpoint[] getBreakpoints(dynamic args, string property)
+		{
+			JArray jsonBreakpoints = args[property];
+			var breakpoints = jsonBreakpoints.ToObject<SourceBreakpoint[]>();
+			return breakpoints ?? new SourceBreakpoint[0];
 		}
 		
 		private void DebuggerKill()
