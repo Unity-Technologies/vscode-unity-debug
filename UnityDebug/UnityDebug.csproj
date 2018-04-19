@@ -154,9 +154,6 @@
     <Compile Include="..\MonoDebug\src\MonoDebug.cs">
       <Link>MonoDebug\MonoDebug.cs</Link>
     </Compile>
-    <Compile Include="..\MonoDebug\src\MonoDebugSession.cs">
-      <Link>MonoDebug\MonoDebugSession.cs</Link>
-    </Compile>
     <Compile Include="..\MonoDebug\src\Protocol.cs">
       <Link>MonoDebug\Protocol.cs</Link>
     </Compile>

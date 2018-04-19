@@ -182,6 +182,12 @@ namespace UnityDebug
 				// This debug adapter does support a side effect free evaluate request for data hovers.
 				supportsEvaluateForHovers = true,
 
+				supportsExceptionOptions = true,
+
+				supportsHitConditionalBreakpoints = true,
+
+				supportsSetVariable = true,
+
 				// This debug adapter does not support exception breakpoint filters
 				exceptionBreakpointFilters = new dynamic[0]
 			});
@@ -380,6 +386,39 @@ namespace UnityDebug
 			lock (_lock) {
 				if (_session != null && _session.IsRunning)
 					_session.Stop();
+			}
+		}
+
+		protected override void SetVariable(Response response, object args)
+		{
+			SendOutput("stdout", "Found this: " + args);
+			SendOutput("stdout", "This is response: " + response);
+			int reference = getInt(args, "variablesReference", -1);
+			if (reference == -1) {
+				SendErrorResponse(response, 3009, "variables: property 'variablesReference' is missing", null, false, true);
+				return;
+			}
+
+			string value = getString(args, "value");
+			string type = "";
+			if (_variableHandles.TryGet(reference, out var children)) {
+				if (children != null && children.Length > 0) {
+					if (children.Length > MAX_CHILDREN) {
+						children = children.Take(MAX_CHILDREN).ToArray();
+					}
+
+					foreach (var v in children) {
+						if (v.IsError)
+							continue;
+						v.WaitHandle.WaitOne();
+						var variable = CreateVariable(v);
+						if (variable.name == getString(args, "name"))
+						{
+							v.Value = value;
+							SendResponse(response, new SetVariablesResponseBody(value, variable.type, variable.variablesReference));
+						}
+					}
+				}
 			}
 		}
 
@@ -716,7 +755,7 @@ namespace UnityDebug
 				var frame = _frameHandles.Get(frameId, null);
 				if (frame != null) {
 					if (frame.ValidateExpression(expression)) {
-						var evaluationOptions = _debuggerSessionOptions.EvaluationOptions;
+						var evaluationOptions = _debuggerSessionOptions.EvaluationOptions.Clone();
 						evaluationOptions.EllipsizeStrings = false;
 						var val = frame.GetExpressionValue(expression, evaluationOptions);
 						val.WaitHandle.WaitOne();
