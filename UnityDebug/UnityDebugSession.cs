@@ -42,6 +42,7 @@ namespace UnityDebug
 		private Mono.Debugging.Client.StackFrame _activeFrame;
 		private long _nextBreakpointId = 0;
 		private SortedDictionary<long, BreakEvent> _breakpoints;
+		SourceBreakpoint[] breakpoints = new SourceBreakpoint[0];
 		private List<Catchpoint> _catchpoints;
 		private DebuggerSessionOptions _debuggerSessionOptions;
 
@@ -434,7 +435,7 @@ namespace UnityDebug
 		{
 			string path = null;
 			if (args.source != null) {
-				string p = (string)args.source.path;
+				var p = (string)args.source.path;
 				if (p != null && p.Trim().Length > 0) {
 					path = p;
 				}
@@ -443,7 +444,6 @@ namespace UnityDebug
 				SendErrorResponse(response, 3010, "setBreakpoints: property 'source' is empty or misformed", null, false, true);
 				return;
 			}
-			path = ConvertClientPathToDebugger(path);
 
 			if (!HasMonoExtension(path)) {
 				// we only support breakpoints in files mono can handle
@@ -451,60 +451,37 @@ namespace UnityDebug
 				return;
 			}
 
-			var clientLines = args.lines.ToObject<int[]>();
-			HashSet<int> lin = new HashSet<int>();
-			for (int i = 0; i < clientLines.Length; i++) {
-				lin.Add(ConvertClientLineToDebugger(clientLines[i]));
-			}
-
-			// find all breakpoints for the given path and remember their id and line number
-			var bpts = new List<Tuple<int, int>>();
-			foreach (var be in _breakpoints) {
-				var bp = be.Value as Mono.Debugging.Client.Breakpoint;
-				if (bp != null && bp.FileName == path) {
-					bpts.Add(new Tuple<int,int>((int)be.Key, (int)bp.Line));
-				}
-			}
-
-			HashSet<int> lin2 = new HashSet<int>();
-			foreach (var bpt in bpts) {
-				if (lin.Contains(bpt.Item2)) {
-					lin2.Add(bpt.Item2);
-				}
-				else {
-					// Program.WriteLine("cleared bpt #{0} for line {1}", bpt.Item1, bpt.Item2);
-
-					BreakEvent b;
-					if (_breakpoints.TryGetValue(bpt.Item1, out b)) {
-						_breakpoints.Remove(bpt.Item1);
-						_session.Breakpoints.Remove(b);
-					}
-				}
-			}
-
-			for (int i = 0; i < clientLines.Length; i++) {
-				var l = ConvertClientLineToDebugger(clientLines[i]);
-				if (!lin2.Contains(l)) {
-					var id = _nextBreakpointId;
-					_breakpoints[id] = _session.Breakpoints.Add(path, l);
-					// Program.WriteLine("added bpt #{0} for line {1}", id, l);
-				}
-			}
-
-			var breakpoints = new List<VSCodeDebug.Breakpoint>();
-			foreach (var l in clientLines)
-			{
-				breakpoints.Add(new VSCodeDebug.Breakpoint(true, l));
-			}
-
-			SourceBreakpoint[] breaks = getBreakpoints(args, "breakpoints");
+			SourceBreakpoint[] newBreakpoints = getBreakpoints(args, "breakpoints");
+			var lines = newBreakpoints.Select(bp => bp.line);
+			var breakpointsToRemove = breakpoints.Where(bp => !lines.Contains(bp.line)).ToArray();
 			foreach (Breakpoint breakpoint in _session.Breakpoints)
 			{
-				var sourceBreakpoint = breaks.First(bp => bp.line == breakpoint.Line);
-				breakpoint.ConditionExpression = sourceBreakpoint.condition;
+				if (breakpointsToRemove.Any(bp => bp.line == breakpoint.Line))
+				{
+					_session.Breakpoints.Remove(breakpoint);
+				}
 			}
 
-			SendResponse(response, new SetBreakpointsResponseBody(breakpoints));
+			foreach (var sourceBreakpoint in newBreakpoints)
+			{
+				var breakEvents = _session.Breakpoints.Where(bp => ((Breakpoint)bp).Line == sourceBreakpoint.line);
+				var enumerable = breakEvents as BreakEvent[] ?? breakEvents.ToArray();
+				if (enumerable.Any())
+				{
+					enumerable.First().ConditionExpression = sourceBreakpoint.condition;
+				}
+				else
+				{
+					var breakpoint = _session.Breakpoints.Add(path, sourceBreakpoint.line);
+					breakpoint.ConditionExpression = sourceBreakpoint.condition;
+				}
+			}
+
+			breakpoints = newBreakpoints;
+
+			var responseBreakpoints = newBreakpoints.Select(sourceBreakpoint =>
+				new VSCodeDebug.Breakpoint(true, sourceBreakpoint.line, sourceBreakpoint.column, sourceBreakpoint.logMessage)).ToList();
+			SendResponse(response, new SetBreakpointsResponseBody(responseBreakpoints)); // TODO: Start here!!!
 		}
 
 		public override void StackTrace(Response response, dynamic args)
