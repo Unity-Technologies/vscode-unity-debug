@@ -1,6 +1,8 @@
-﻿using MonoDevelop.Debugger.Soft.Unity;
+﻿using System;
+using MonoDevelop.Debugger.Soft.Unity;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace UnityDebug
 {
@@ -17,8 +19,15 @@ namespace UnityDebug
 		};
 
 
-		public static IEnumerable<UnityProcessInfo> GetAttachableProcesses (string targetName)
+		public static IEnumerable<UnityProcessInfo> GetAttachableProcesses(string targetName)
 		{
+			var match = Regex.Match(targetName, "\\(([0-9]+)\\)");
+			var processId = -1;
+			if (match.Success)
+			{
+				processId = Convert.ToInt32(match.Groups[1].Value);
+				targetName = targetName.Substring(0, targetName.IndexOf("(") - 1);
+			}
 			string processName;
 
 			UnityProcessDiscovery.GetProcessOptions options = UnityProcessDiscovery.GetProcessOptions.All;
@@ -36,7 +45,9 @@ namespace UnityDebug
 
 			processes.ForEach (p => Log.Write ("Found Unity process: " + p.Name + " (" + p.Id + ")"));
 
-			return processes.Where (p => p.Name.Contains (processName));
+			return processId == -1
+				? processes.Where (p => p.Name.Contains(processName))
+				: processes.Where(p => p.Name.Contains(processName) && p.Id == processId);
 		}
 	}
 }

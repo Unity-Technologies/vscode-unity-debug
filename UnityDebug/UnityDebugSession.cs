@@ -212,7 +212,7 @@ namespace UnityDebug
 
 			SendOutput("stdout", "UnityDebug: Searching for Unity process '" + name + "'");
 
-			var processes = UnityAttach.GetAttachableProcesses (name).ToArray ();
+			var processes = UnityAttach.GetAttachableProcesses(name).ToArray ();
 
 			if (processes == null) {
 				SendErrorResponse(response, 8001, "Unknown target name '{_name}'. Did you mean 'Unity Editor'?", new { _name = name});
@@ -225,9 +225,11 @@ namespace UnityDebug
 			}
 
 			if (processes.Length > 1) {
-				SendErrorResponse (response, 8002, "Multiple targets with name '{_name}' running. Unable to connect.", new { _name = name});
+				SendErrorResponse (response, 8002, "Multiple targets with name '{_name}' running. Unable to connect.\n" +
+					"Use \"Unity Attach Debugger\" from the command palette (View > Command Palette...) to specify which process to attach to.", new { _name = name});
 
-				SendOutput("stdout", "UnityDebug: Multiple targets with name '" + name + "' running. Unable to connect");
+				SendOutput("stdout", "UnityDebug: Multiple targets with name '" + name + "' running. Unable to connect.\n" +
+					"Use \"Unity Attach Debugger\" from the command palette (View > Command Palette...) to specify which process to attach to.");
 
 				foreach(var p in processes)
 					SendOutput("stdout", "UnityDebug: Found Unity process '" + p.Name + "' (" + p.Id + ")\n");

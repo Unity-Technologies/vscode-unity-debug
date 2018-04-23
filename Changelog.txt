@@ -6,6 +6,10 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.4.0
+=====
+ - Added support for attaching individual unity processes by use of commands.
+
 2.3.0
 =====
  - Added support for conditional breakpoints.
