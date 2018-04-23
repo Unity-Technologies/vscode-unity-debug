@@ -42,8 +42,6 @@ namespace UnityDebug
 		private volatile bool _debuggeeKilled = true;
 		private ProcessInfo _activeProcess;
 		private Mono.Debugging.Client.StackFrame _activeFrame;
-		private long _nextBreakpointId = 0;
-		private SortedDictionary<long, BreakEvent> _breakpoints;
 		SourceBreakpoint[] breakpoints = new SourceBreakpoint[0];
 		private List<Catchpoint> _catchpoints;
 		private DebuggerSessionOptions _debuggerSessionOptions;
@@ -73,7 +71,6 @@ namespace UnityDebug
 			_session = new UnityDebuggerSession();
 			_session.Breakpoints = new BreakpointStore();
 
-			_breakpoints = new SortedDictionary<long, BreakEvent>();
 			_catchpoints = new List<Catchpoint>();
 
 			DebuggerLoggingService.CustomLogger = new CustomLogger();
@@ -209,7 +206,7 @@ namespace UnityDebug
 				supportsSetVariable = true,
 
 				// This debug adapter does not support exception breakpoint filters
-				exceptionBreakpointFilters = new ExceptionBreakpointsFilter[0]
+				exceptionBreakpointFilters = new[] { new ExceptionBreakpointsFilter("all_exceptions", "All Exceptions"),}
 			});
 
 			// Mono Debug is ready to accept breakpoints immediately
@@ -337,7 +334,7 @@ namespace UnityDebug
 			lock (_lock) {
 				if (_session != null) {
 					_debuggeeExecuting = true;
-					_breakpoints.Clear();
+					breakpoints = null;
 					_session.Breakpoints.Clear();
 					_session.Continue();
 					_session.Detach();
@@ -455,6 +452,10 @@ namespace UnityDebug
 
 		public override void SetExceptionBreakpoints(Response response, dynamic args)
 		{
+			/*if (args["filters"].Contains("all_exceptions"))
+			{
+				_session.TargetExceptionThrown
+			}*/
 			SetExceptionBreakpoints(args.exceptionOptions);
 			SendResponse(response);
 		}
@@ -509,7 +510,7 @@ namespace UnityDebug
 
 			var responseBreakpoints = newBreakpoints.Select(sourceBreakpoint =>
 				new VSCodeDebug.Breakpoint(true, sourceBreakpoint.line, sourceBreakpoint.column, sourceBreakpoint.logMessage)).ToList();
-			SendResponse(response, new SetBreakpointsResponseBody(responseBreakpoints)); // TODO: Start here!!!
+			SendResponse(response, new SetBreakpointsResponseBody(responseBreakpoints));
 		}
 
 		public override void StackTrace(Response response, dynamic args)
