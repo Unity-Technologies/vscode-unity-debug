@@ -1,7 +1,7 @@
 {
   "name": "unity-debug",
   "displayName": "Debugger for Unity",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "publisher": "Unity",
   "description": "Unity debugger extension",
   "engines": {
@@ -64,6 +64,7 @@
           {
             "name": "Unity Editor",
             "type": "unity",
+            "path": "${workspaceFolder}/Library/EditorInstance.json",
             "request": "launch"
           },
           {

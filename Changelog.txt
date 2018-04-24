@@ -6,6 +6,10 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.4.2
+=====
+ - Added support for Library/EditorInstance.json. The correct process is attached and multiple editors are running.
+
 2.4.1
 =====
  - Fix modification exception when setting breakpoints.

@@ -16,6 +16,7 @@ using MonoDevelop.Debugger.Soft.Unity;
 using MonoDevelop.Unity.Debugger;
 using Newtonsoft.Json.Linq;
 using Breakpoint = Mono.Debugging.Client.Breakpoint;
+using UnityProcessInfo = MonoDevelop.Debugger.Soft.Unity.UnityProcessInfo;
 
 namespace UnityDebug
 {
@@ -214,30 +215,39 @@ namespace UnityDebug
 
 			var processes = UnityAttach.GetAttachableProcesses(name).ToArray ();
 
-			if (processes == null) {
-				SendErrorResponse(response, 8001, "Unknown target name '{_name}'. Did you mean 'Unity Editor'?", new { _name = name});
-				return;
-			}
-
 			if (processes.Length == 0) {
 				SendErrorResponse (response, 8001, "Could not find target name '{_name}'. Is it running?", new { _name = name});
 				return;
 			}
 
-			if (processes.Length > 1) {
-				SendErrorResponse (response, 8002, "Multiple targets with name '{_name}' running. Unable to connect.\n" +
-					"Use \"Unity Attach Debugger\" from the command palette (View > Command Palette...) to specify which process to attach to.", new { _name = name});
-
-				SendOutput("stdout", "UnityDebug: Multiple targets with name '" + name + "' running. Unable to connect.\n" +
-					"Use \"Unity Attach Debugger\" from the command palette (View > Command Palette...) to specify which process to attach to.");
-
-				foreach(var p in processes)
-					SendOutput("stdout", "UnityDebug: Found Unity process '" + p.Name + "' (" + p.Id + ")\n");
-
-				return;
+			UnityProcessInfo process;
+			if (processes.Length == 1)
+			{
+				process = processes[0];
 			}
+			else
+			{
+				if (name.Contains("Editor"))
+				{
+					string pathToEditorInstanceJson = getString(args, "path");
+					var jObject = JObject.Parse(File.ReadAllText(pathToEditorInstanceJson));
+					var processId = jObject["process_id"].ToObject<int>();
+					process = processes.First(p => p.Id == processId);
+				}
+				else
+				{
+					SendErrorResponse(response, 8002, "Multiple targets with name '{_name}' running. Unable to connect.\n" +
+						"Use \"Unity Attach Debugger\" from the command palette (View > Command Palette...) to specify which process to attach to.", new { _name = name });
 
-			var process = processes [0];
+					SendOutput("stdout", "UnityDebug: Multiple targets with name '" + name + "' running. Unable to connect.\n" +
+						"Use \"Unity Attach Debugger\" from the command palette (View > Command Palette...) to specify which process to attach to.");
+
+					foreach (var p in processes)
+						SendOutput("stdout", "UnityDebug: Found Unity process '" + p.Name + "' (" + p.Id + ")\n");
+
+					return;
+				}
+			}
 
 			var attachInfo = UnityProcessDiscovery.GetUnityAttachInfo (process.Id, ref unityDebugConnector);
 
