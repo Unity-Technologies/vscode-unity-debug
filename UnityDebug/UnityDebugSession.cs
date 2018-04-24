@@ -192,7 +192,7 @@ namespace UnityDebug
 				supportsSetVariable = true,
 
 				// This debug adapter does not support exception breakpoint filters
-				exceptionBreakpointFilters = new dynamic[0]
+				exceptionBreakpointFilters = new ExceptionBreakpointsFilter[0]
 			});
 
 			// Mono Debug is ready to accept breakpoints immediately
@@ -456,7 +456,7 @@ namespace UnityDebug
 			SourceBreakpoint[] newBreakpoints = getBreakpoints(args, "breakpoints");
 			var lines = newBreakpoints.Select(bp => bp.line);
 			var breakpointsToRemove = breakpoints.Where(bp => !lines.Contains(bp.line)).ToArray();
-			foreach (Breakpoint breakpoint in _session.Breakpoints)
+			foreach (Breakpoint breakpoint in _session.Breakpoints.GetBreakpoints())
 			{
 				if (breakpointsToRemove.Any(bp => bp.line == breakpoint.Line))
 				{
