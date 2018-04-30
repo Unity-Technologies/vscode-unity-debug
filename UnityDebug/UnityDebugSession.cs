@@ -16,6 +16,7 @@ using MonoDevelop.Debugger.Soft.Unity;
 using MonoDevelop.Unity.Debugger;
 using Newtonsoft.Json.Linq;
 using Breakpoint = Mono.Debugging.Client.Breakpoint;
+using StackFrame = Mono.Debugging.Client.StackFrame;
 using UnityProcessInfo = MonoDevelop.Debugger.Soft.Unity.UnityProcessInfo;
 
 namespace UnityDebug
@@ -85,18 +86,31 @@ namespace UnityDebug
 			};
 
 			_session.TargetStopped += (sender, e) => {
+				if (e.Backtrace != null) {
+					Frame = e.Backtrace.GetFrame (0);
+				} else {
+					SendOutput("stdout", "e.Bracktrace is null");
+				}
 				Stopped();
 				SendEvent(CreateStoppedEvent("step", e.Thread));
 				_resumeEvent.Set();
 			};
 
 			_session.TargetHitBreakpoint += (sender, e) => {
+				Frame = e.Backtrace.GetFrame(0);
 				Stopped();
 				SendEvent(CreateStoppedEvent("breakpoint", e.Thread));
 				_resumeEvent.Set();
 			};
 
 			_session.TargetExceptionThrown += (sender, e) => {
+				Frame = e.Backtrace.GetFrame (0);
+				for (var i = 0; i < e.Backtrace.FrameCount; i++) {
+					if (!e.Backtrace.GetFrame (i).IsExternalCode) {
+						Frame = e.Backtrace.GetFrame (i);
+						break;
+					}
+				}
 				Stopped();
 				var ex = DebuggerActiveException();
 				if (ex != null) {
@@ -163,6 +177,8 @@ namespace UnityDebug
 			};
 		}
 
+		public StackFrame Frame { get; set; }
+
 		public override void Initialize(Response response, dynamic args)
 		{
 			var os = Environment.OSVersion;
@@ -178,7 +194,7 @@ namespace UnityDebug
 				supportsConfigurationDoneRequest = false,
 
 				// This debug adapter does not support function breakpoints.
-				supportsFunctionBreakpoints = false,
+				supportsFunctionBreakpoints = true,
 
 				// This debug adapter doesn't support conditional breakpoints.
 				supportsConditionalBreakpoints = true,
@@ -682,114 +698,72 @@ namespace UnityDebug
 			return parsedExpression;
 		}
 
-//		public override void Evaluate(Response response, dynamic args)
-//		{
-//			string error = null;
-//
-//			var expression = getString(args, "expression");
-//			if (expression == null) {
-//				error = "expression missing";
-//			} else {
-//				int frameId = getInt(args, "frameId", -1);
-//				var frame = _frameHandles.Get(frameId, null);
-//				if (frame != null) {
-//
-//					var parsedExpression = ParseEvaluate (expression);
-//
-//					if (!frame.ValidateExpression(expression) && parsedExpression.Length > 0 && frame.ValidateExpression (parsedExpression))
-//						expression = parsedExpression;
-//
-//					if (frame.ValidateExpression(expression)) {
-//						var val = frame.GetExpressionValue(expression, Debugger.Options.EvaluationOptions);
-//						val.WaitHandle.WaitOne();
-//
-//						var flags = val.Flags;
-//						if (flags.HasFlag(ObjectValueFlags.Error) || flags.HasFlag(ObjectValueFlags.NotSupported)) {
-//							error = val.DisplayValue;
-//							if (error.IndexOf("reference not available in the current evaluation context") > 0) {
-//								error = "not available";
-//							}
-//						}
-//						else if (flags.HasFlag(ObjectValueFlags.Unknown)) {
-//							error = "invalid expression";
-//							// maybe user hovered this's member
-//							if (!expression.StartsWith("this", System.StringComparison.Ordinal)) {
-//								args["expression"] = "this." + expression;
-//								Evaluate(response, args);
-//								return;
-//							}
-//						}
-//						else if (flags.HasFlag(ObjectValueFlags.Object) && flags.HasFlag(ObjectValueFlags.Namespace)) {
-//							error = "not available";
-//						}
-//						else {
-//							int handle = 0;
-//							if (val.HasChildren) {
-//								handle = _variableHandles.Create(val.GetAllChildren());
-//							}
-//							SendResponse(response, new EvaluateResponseBody(val.DisplayValue, handle));
-//							return;
-//						}
-//					}
-//					else {
-//						error = "invalid expression";
-//					}
-//				}
-//				else {
-//					error = "no active stackframe";
-//				}
-//			}
-//			SendErrorResponse(response, 3014, "Evaluate request failed ({_reason}).", new { _reason = error } );
-//		}
-
 		public override void Evaluate(Response response, dynamic args)
 		{
-			string error = null;
-
+			SendOutput("stdout", "Starting");
 			var expression = getString(args, "expression");
-			if (expression == null) {
-				error = "expression missing";
-			} else {
-				int frameId = getInt(args, "frameId", -1);
-				var frame = _frameHandles.Get(frameId, null);
-				if (frame != null) {
-					if (frame.ValidateExpression(expression)) {
-						var evaluationOptions = _debuggerSessionOptions.EvaluationOptions.Clone();
-						evaluationOptions.EllipsizeStrings = false;
-						var val = frame.GetExpressionValue(expression, evaluationOptions);
-						val.WaitHandle.WaitOne();
 
-						var flags = val.Flags;
-						if (flags.HasFlag(ObjectValueFlags.Error) || flags.HasFlag(ObjectValueFlags.NotSupported)) {
-							error = val.DisplayValue;
-							if (error.IndexOf("reference not available in the current evaluation context") > 0) {
-								error = "not available";
-							}
-						}
-						else if (flags.HasFlag(ObjectValueFlags.Unknown)) {
-							error = "invalid expression";
-						}
-						else if (flags.HasFlag(ObjectValueFlags.Object) && flags.HasFlag(ObjectValueFlags.Namespace)) {
-							error = "not available";
-						}
-						else {
-							int handle = 0;
-							if (val.HasChildren) {
-								handle = _variableHandles.Create(val.GetAllChildren());
-							}
-							SendResponse(response, new EvaluateResponseBody(val.DisplayValue, handle));
-							return;
-						}
-					}
-					else {
-						error = "invalid expression";
-					}
-				}
-				else {
-					error = "no active stackframe";
-				}
+			if (expression == null) {
+				SendError(response, "expression missing");
+				return;
 			}
-			SendErrorResponse(response, 3014, "Evaluate request failed ({_reason}).", new { _reason = error } );
+			if (Frame == null)
+			{
+				SendError(response, "no active stackframe");
+				return;
+			}
+			if (!Frame.ValidateExpression(expression))
+			{
+				SendError(response, "invalid expression");
+				return;
+			}
+			SendOutput("stdout", "Valid expression " + args);
+
+			var evaluationOptions = _debuggerSessionOptions.EvaluationOptions.Clone();
+			evaluationOptions.EllipsizeStrings = false;
+			evaluationOptions.AllowMethodEvaluation = true;
+			_session.Options.EvaluationOptions = evaluationOptions;
+			_session.Options.ProjectAssembliesOnly = true;
+			_session.Options.StepOverPropertiesAndOperators = false;
+			var val = Frame.GetExpressionValue(expression, true);
+			SendOutput("stdout", "Sent expression");
+			val.WaitHandle.WaitOne();
+			SendOutput("stdout", "Waiting");
+
+			var flags = val.Flags;
+			if (flags.HasFlag(ObjectValueFlags.Error) || flags.HasFlag(ObjectValueFlags.NotSupported))
+			{
+				string error = val.DisplayValue;
+				if (error.IndexOf("reference not available in the current evaluation context") > 0)
+				{
+					error = "not available";
+				}
+				SendError(response, error);
+				return;
+			}
+			if (flags.HasFlag(ObjectValueFlags.Unknown))
+			{
+				SendError(response, "invalid expression");
+				return;
+			}
+			if (flags.HasFlag(ObjectValueFlags.Object) && flags.HasFlag(ObjectValueFlags.Namespace))
+			{
+				SendError(response, "not available");
+				return;
+			}
+			
+			int handle = 0;
+			if (val.HasChildren)
+			{
+				handle = _variableHandles.Create(val.GetAllChildren());
+			}
+
+			SendResponse(response, new EvaluateResponseBody(val.DisplayValue, handle));
+		}
+
+		void SendError(Response response, string error)
+		{
+			SendErrorResponse(response, 3014, "Evaluate request failed ({_reason}).", new { _reason = error });
 		}
 
 		//---- private ------------------------------------------
