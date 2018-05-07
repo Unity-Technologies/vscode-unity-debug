@@ -10,20 +10,31 @@ using System.IO;
 using System.Threading;
 using System.Linq;
 using System.Net;
+using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
 using Mono.Debugging.Client;
 using VSCodeDebug;
 using MonoDevelop.Debugger.Soft.Unity;
 using MonoDevelop.Unity.Debugger;
 using Newtonsoft.Json.Linq;
 using Breakpoint = Mono.Debugging.Client.Breakpoint;
+using ResponseBreakpoint = Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages.Breakpoint;
+using ExceptionBreakpointsFilter = VSCodeDebug.ExceptionBreakpointsFilter;
+using InitializedEvent = VSCodeDebug.InitializedEvent;
+using OutputEvent = VSCodeDebug.OutputEvent;
+using Scope = VSCodeDebug.Scope;
+using Source = VSCodeDebug.Source;
+using SourceBreakpoint = VSCodeDebug.SourceBreakpoint;
 using StackFrame = Mono.Debugging.Client.StackFrame;
+using StoppedEvent = VSCodeDebug.StoppedEvent;
+using TerminatedEvent = VSCodeDebug.TerminatedEvent;
+using ThreadEvent = VSCodeDebug.ThreadEvent;
 using UnityProcessInfo = MonoDevelop.Debugger.Soft.Unity.UnityProcessInfo;
+using Variable = VSCodeDebug.Variable;
 
 namespace UnityDebug
 {
 	internal class UnityDebugSession : DebugSession
 	{
-
 		private const string MONO = "mono";
 		private readonly string[] MONO_EXTENSIONS = new String[] {
 			".cs", ".csx",
@@ -35,54 +46,47 @@ namespace UnityDebug
 		private const int MAX_CONNECTION_ATTEMPTS = 10;
 		private const int CONNECTION_ATTEMPT_INTERVAL = 500;
 
-		private AutoResetEvent _resumeEvent = new AutoResetEvent(false);
-		private bool _debuggeeExecuting = false;
-		private readonly object _lock = new object();
-		private Mono.Debugging.Soft.SoftDebuggerSession _session;
-		private volatile bool _debuggeeKilled = true;
-		private ProcessInfo _activeProcess;
-		private Mono.Debugging.Client.StackFrame _activeFrame;
-		SourceBreakpoint[] breakpoints = new SourceBreakpoint[0];
-		private List<Catchpoint> _catchpoints;
-		private DebuggerSessionOptions _debuggerSessionOptions;
+		private AutoResetEvent m_ResumeEvent = new AutoResetEvent(false);
+		private bool m_DebuggeeExecuting;
+		private readonly object m_Lock = new object();
+		private Mono.Debugging.Soft.SoftDebuggerSession m_Session;
+		private ProcessInfo m_ActiveProcess;
+		SourceBreakpoint[] m_Breakpoints = new SourceBreakpoint[0];
+		private List<Catchpoint> m_Catchpoints;
+		private DebuggerSessionOptions m_DebuggerSessionOptions;
 
-		private System.Diagnostics.Process _process;
-		private Handles<ObjectValue[]> _variableHandles;
-		private Handles<Mono.Debugging.Client.StackFrame> _frameHandles;
-		private ObjectValue _exception;
-		private Dictionary<int, VSCodeDebug.Thread> _seenThreads = new Dictionary<int, VSCodeDebug.Thread>();
-		private bool _attachMode = false;
-		private bool _terminated = false;
-		private bool _stderrEOF = true;
-		private bool _stdoutEOF = true;
-
+		private Handles<ObjectValue[]> m_VariableHandles;
+		private Handles<StackFrame> m_FrameHandles;
+		private ObjectValue m_Exception;
+		private Dictionary<int, VSCodeDebug.Thread> m_SeenThreads;
+		private bool m_Terminated;
 		IUnityDbgConnector unityDebugConnector;
 			
 		public UnityDebugSession() : base()
 		{
-			_variableHandles = new Handles<ObjectValue[]>();
-			_frameHandles = new Handles<Mono.Debugging.Client.StackFrame>();
-			_seenThreads = new Dictionary<int, VSCodeDebug.Thread>();
+			m_VariableHandles = new Handles<ObjectValue[]>();
+			m_FrameHandles = new Handles<Mono.Debugging.Client.StackFrame>();
+			m_SeenThreads = new Dictionary<int, VSCodeDebug.Thread>();
 
-			_debuggerSessionOptions = new DebuggerSessionOptions {
+			m_DebuggerSessionOptions = new DebuggerSessionOptions {
 				EvaluationOptions = EvaluationOptions.DefaultOptions
 			};
 
-			_session = new UnityDebuggerSession();
-			_session.Breakpoints = new BreakpointStore();
+			m_Session = new UnityDebuggerSession();
+			m_Session.Breakpoints = new BreakpointStore();
 
-			_catchpoints = new List<Catchpoint>();
+			m_Catchpoints = new List<Catchpoint>();
 
 			DebuggerLoggingService.CustomLogger = new CustomLogger();
 
-			_session.ExceptionHandler = ex => {
+			m_Session.ExceptionHandler = ex => {
 				return true;
 			};
 
-			_session.LogWriter = (isStdErr, text) => {
+			m_Session.LogWriter = (isStdErr, text) => {
 			};
 
-			_session.TargetStopped += (sender, e) => {
+			m_Session.TargetStopped += (sender, e) => {
 				if (e.Backtrace != null) {
 					Frame = e.Backtrace.GetFrame (0);
 				} else {
@@ -90,17 +94,17 @@ namespace UnityDebug
 				}
 				Stopped();
 				SendEvent(CreateStoppedEvent("step", e.Thread));
-				_resumeEvent.Set();
+				m_ResumeEvent.Set();
 			};
 
-			_session.TargetHitBreakpoint += (sender, e) => {
+			m_Session.TargetHitBreakpoint += (sender, e) => {
 				Frame = e.Backtrace.GetFrame(0);
 				Stopped();
 				SendEvent(CreateStoppedEvent("breakpoint", e.Thread));
-				_resumeEvent.Set();
+				m_ResumeEvent.Set();
 			};
 
-			_session.TargetExceptionThrown += (sender, e) => {
+			m_Session.TargetExceptionThrown += (sender, e) => {
 				Frame = e.Backtrace.GetFrame (0);
 				for (var i = 0; i < e.Backtrace.FrameCount; i++) {
 					if (!e.Backtrace.GetFrame (i).IsExternalCode) {
@@ -111,65 +115,62 @@ namespace UnityDebug
 				Stopped();
 				var ex = DebuggerActiveException();
 				if (ex != null) {
-					_exception = ex.Instance;
+					m_Exception = ex.Instance;
 					SendEvent(CreateStoppedEvent("exception", e.Thread, ex.Message));
 				}
-				_resumeEvent.Set();
+				m_ResumeEvent.Set();
 			};
 
-			_session.TargetUnhandledException += (sender, e) => {
+			m_Session.TargetUnhandledException += (sender, e) => {
 				Stopped ();
 				var ex = DebuggerActiveException();
 				if (ex != null) {
-					_exception = ex.Instance;
+					m_Exception = ex.Instance;
 					SendEvent(CreateStoppedEvent("exception", e.Thread, ex.Message));
 				}
-				_resumeEvent.Set();
+				m_ResumeEvent.Set();
 			};
 
-			_session.TargetStarted += (sender, e) => {
-				_activeFrame = null;
+			m_Session.TargetStarted += (sender, e) => {
 			};
 
-			_session.TargetReady += (sender, e) => {
-				_activeProcess = _session.GetProcesses().SingleOrDefault();
+			m_Session.TargetReady += (sender, e) => {
+				m_ActiveProcess = m_Session.GetProcesses().SingleOrDefault();
 			};
 
-			_session.TargetExited += (sender, e) => {
+			m_Session.TargetExited += (sender, e) => {
 
 				DebuggerKill();
 
-				_debuggeeKilled = true;
-
 				Terminate("target exited");
 
-				_resumeEvent.Set();
+				m_ResumeEvent.Set();
 			};
 
-			_session.TargetInterrupted += (sender, e) => {
-				_resumeEvent.Set();
+			m_Session.TargetInterrupted += (sender, e) => {
+				m_ResumeEvent.Set();
 			};
 
-			_session.TargetEvent += (sender, e) => {
+			m_Session.TargetEvent += (sender, e) => {
 			};
 
-			_session.TargetThreadStarted += (sender, e) => {
+			m_Session.TargetThreadStarted += (sender, e) => {
 				int tid = (int)e.Thread.Id;
-				lock (_seenThreads) {
-					_seenThreads[tid] = new VSCodeDebug.Thread(tid, e.Thread.Name);
+				lock (m_SeenThreads) {
+					m_SeenThreads[tid] = new VSCodeDebug.Thread(tid, e.Thread.Name);
 				}
 				SendEvent(new ThreadEvent("started", tid));
 			};
 
-			_session.TargetThreadStopped += (sender, e) => {
+			m_Session.TargetThreadStopped += (sender, e) => {
 				int tid = (int)e.Thread.Id;
-				lock (_seenThreads) {
-					_seenThreads.Remove(tid);
+				lock (m_SeenThreads) {
+					m_SeenThreads.Remove(tid);
 				}
 				SendEvent(new ThreadEvent("exited", tid));
 			};
 
-			_session.OutputWriter = (isStdErr, text) => {
+			m_Session.OutputWriter = (isStdErr, text) => {
 				SendOutput(isStdErr ? "stderr" : "stdout", text);
 			};
 		}
@@ -206,7 +207,11 @@ namespace UnityDebug
 				supportsSetVariable = true,
 
 				// This debug adapter does not support exception breakpoint filters
-				exceptionBreakpointFilters = new[] { new ExceptionBreakpointsFilter("all_exceptions", "All Exceptions"),}
+				exceptionBreakpointFilters = new[]
+				{
+					new ExceptionBreakpointsFilter("all_exceptions", "All Exceptions"),
+					new ExceptionBreakpointsFilter("unhandled", "Unhandled_exceptions"), 
+				}
 			});
 
 			// Mono Debug is ready to accept breakpoints immediately
@@ -243,7 +248,7 @@ namespace UnityDebug
 				if (name.Contains("Editor"))
 				{
 					string pathToEditorInstanceJson = getString(args, "path");
-					var jObject = JObject.Parse(File.ReadAllText(pathToEditorInstanceJson));
+					var jObject = JObject.Parse(File.ReadAllText(pathToEditorInstanceJson.TrimStart('/')));
 					var processId = jObject["process_id"].ToObject<int>();
 					process = processes.First(p => p.Id == processId);
 				}
@@ -272,54 +277,54 @@ namespace UnityDebug
 
 		private void Connect(IPAddress address, int port)
 		{
-			lock (_lock) {
-
-				_debuggeeKilled = false;
+			lock (m_Lock) {
 
 				var args0 = new Mono.Debugging.Soft.SoftDebuggerConnectArgs(string.Empty, address, port) {
 					MaxConnectionAttempts = MAX_CONNECTION_ATTEMPTS,
 					TimeBetweenConnectionAttempts = CONNECTION_ATTEMPT_INTERVAL
 				};
 
-				_session.Run(new Mono.Debugging.Soft.SoftDebuggerStartInfo(args0), _debuggerSessionOptions);
+				m_Session.Run(new Mono.Debugging.Soft.SoftDebuggerStartInfo(args0), m_DebuggerSessionOptions);
 
-				_debuggeeExecuting = true;
+				m_DebuggeeExecuting = true;
 			}
 		}
 
 		//---- private ------------------------------------------
 		private void SetExceptionBreakpoints(dynamic exceptionOptions)
 		{
-			if (exceptionOptions != null) {
+			if (exceptionOptions == null)
+			{
+				return;
+			}
 
-				// clear all existig catchpoints
-				foreach (var cp in _catchpoints) {
-					_session.Breakpoints.Remove(cp);
-				}
-				_catchpoints.Clear();
+			// clear all existig catchpoints
+			foreach (var cp in m_Catchpoints) {
+				m_Session.Breakpoints.Remove(cp);
+			}
+			m_Catchpoints.Clear();
 
-				var exceptions = exceptionOptions.ToObject<dynamic[]>();
-				for (int i = 0; i < exceptions.Length; i++) {
+			var exceptions = exceptionOptions.ToObject<dynamic[]>();
+			for (int i = 0; i < exceptions.Length; i++) {
 
-					var exception = exceptions[i];
+				var exception = exceptions[i];
 
-					string exName = null;
-					string exBreakMode = exception.breakMode;
+				string exName = null;
+				string exBreakMode = exception.breakMode;
 
-					if (exception.path != null) {
-						var paths = exception.path.ToObject<dynamic[]>();
-						var path = paths[0];
-						if (path.names != null) {
-							var names = path.names.ToObject<dynamic[]>();
-							if (names.Length > 0) {
-								exName = names[0];
-							}
+				if (exception.path != null) {
+					var paths = exception.path.ToObject<dynamic[]>();
+					var path = paths[0];
+					if (path.names != null) {
+						var names = path.names.ToObject<dynamic[]>();
+						if (names.Length > 0) {
+							exName = names[0];
 						}
 					}
+				}
 
-					if (exName != null && exBreakMode == "always") {
-						_catchpoints.Add(_session.Breakpoints.AddCatchpoint(exName));
-					}
+				if (exName != null && exBreakMode == "always") {
+					m_Catchpoints.Add(m_Session.Breakpoints.AddCatchpoint(exName));
 				}
 			}
 		}
@@ -331,15 +336,15 @@ namespace UnityDebug
 				unityDebugConnector = null;
 			}
 
-			lock (_lock) {
-				if (_session != null) {
-					_debuggeeExecuting = true;
-					breakpoints = null;
-					_session.Breakpoints.Clear();
-					_session.Continue();
-					_session.Detach();
-					_session.Adaptor.Dispose();
-					_session = null;
+			lock (m_Lock) {
+				if (m_Session != null) {
+					m_DebuggeeExecuting = true;
+					m_Breakpoints = null;
+					m_Session.Breakpoints.Clear();
+					m_Session.Continue();
+					m_Session.Detach();
+					m_Session.Adaptor.Dispose();
+					m_Session = null;
 				}
 			}
 
@@ -347,35 +352,46 @@ namespace UnityDebug
 			SendResponse(response);
 		}
 
+		public override void SetFunctionBreakpoints(Response response, dynamic arguments)
+		{
+			SendOutput("stdout", arguments.ToString());
+			var breakpoints = new List<ResponseBreakpoint>();
+			foreach (var breakpoint in arguments.breakpoints)
+			{
+				//new ResponseBreakpoint(true,);
+			}
+			SendResponse(response, new SetFunctionBreakpointsResponse(breakpoints));
+		}
+
 		public override void Continue(Response response, dynamic args)
 		{
 			WaitForSuspend();
 			SendResponse(response);
-			lock (_lock) {
-				if (_session == null || _session.IsRunning || _session.HasExited) return;
+			lock (m_Lock) {
+				if (m_Session == null || m_Session.IsRunning || m_Session.HasExited) return;
 
-				_session.Continue();
-				_debuggeeExecuting = true;
+				m_Session.Continue();
+				m_DebuggeeExecuting = true;
 			}
 		}
 
 		private void WaitForSuspend()
 		{
-			if (!_debuggeeExecuting) return;
+			if (!m_DebuggeeExecuting) return;
 
-			_resumeEvent.WaitOne();
-			_debuggeeExecuting = false;
+			m_ResumeEvent.WaitOne();
+			m_DebuggeeExecuting = false;
 		}
 
 		public override void Next(Response response, dynamic args)
 		{
 			WaitForSuspend();
 			SendResponse(response);
-			lock (_lock) {
-				if (_session == null || _session.IsRunning || _session.HasExited) return;
+			lock (m_Lock) {
+				if (m_Session == null || m_Session.IsRunning || m_Session.HasExited) return;
 
-				_session.NextLine();
-				_debuggeeExecuting = true;
+				m_Session.NextLine();
+				m_DebuggeeExecuting = true;
 			}
 		}
 
@@ -383,11 +399,11 @@ namespace UnityDebug
 		{
 			WaitForSuspend();
 			SendResponse(response);
-			lock (_lock) {
-				if (_session == null || _session.IsRunning || _session.HasExited) return;
+			lock (m_Lock) {
+				if (m_Session == null || m_Session.IsRunning || m_Session.HasExited) return;
 
-				_session.StepLine();
-				_debuggeeExecuting = true;
+				m_Session.StepLine();
+				m_DebuggeeExecuting = true;
 			}
 		}
 
@@ -395,11 +411,11 @@ namespace UnityDebug
 		{
 			WaitForSuspend();
 			SendResponse(response);
-			lock (_lock) {
-				if (_session == null || _session.IsRunning || _session.HasExited) return;
+			lock (m_Lock) {
+				if (m_Session == null || m_Session.IsRunning || m_Session.HasExited) return;
 
-				_session.Finish();
-				_debuggeeExecuting = true;
+				m_Session.Finish();
+				m_DebuggeeExecuting = true;
 			}
 		}
 
@@ -411,9 +427,9 @@ namespace UnityDebug
 
 		private void PauseDebugger()
 		{
-			lock (_lock) {
-				if (_session != null && _session.IsRunning)
-					_session.Stop();
+			lock (m_Lock) {
+				if (m_Session != null && m_Session.IsRunning)
+					m_Session.Stop();
 			}
 		}
 
@@ -429,7 +445,7 @@ namespace UnityDebug
 
 			string value = getString(args, "value");
 			string type = "";
-			if (_variableHandles.TryGet(reference, out var children)) {
+			if (m_VariableHandles.TryGet(reference, out var children)) {
 				if (children != null && children.Length > 0) {
 					if (children.Length > MAX_CHILDREN) {
 						children = children.Take(MAX_CHILDREN).ToArray();
@@ -452,10 +468,10 @@ namespace UnityDebug
 
 		public override void SetExceptionBreakpoints(Response response, dynamic args)
 		{
-			/*if (args["filters"].Contains("all_exceptions"))
+			if (args["filters"].Contains("all_exceptions"))
 			{
-				_session.TargetExceptionThrown
-			}*/
+				
+			}
 			SetExceptionBreakpoints(args.exceptionOptions);
 			SendResponse(response);
 		}
@@ -482,18 +498,18 @@ namespace UnityDebug
 
 			SourceBreakpoint[] newBreakpoints = getBreakpoints(args, "breakpoints");
 			var lines = newBreakpoints.Select(bp => bp.line);
-			var breakpointsToRemove = breakpoints.Where(bp => !lines.Contains(bp.line)).ToArray();
-			foreach (Breakpoint breakpoint in _session.Breakpoints.GetBreakpoints())
+			var breakpointsToRemove = m_Breakpoints.Where(bp => !lines.Contains(bp.line)).ToArray();
+			foreach (Breakpoint breakpoint in m_Session.Breakpoints.GetBreakpoints())
 			{
 				if (breakpointsToRemove.Any(bp => bp.line == breakpoint.Line))
 				{
-					_session.Breakpoints.Remove(breakpoint);
+					m_Session.Breakpoints.Remove(breakpoint);
 				}
 			}
 
 			foreach (var sourceBreakpoint in newBreakpoints)
 			{
-				var breakEvents = _session.Breakpoints.Where(bp => ((Breakpoint)bp).Line == sourceBreakpoint.line);
+				var breakEvents = m_Session.Breakpoints.Where(bp => ((Breakpoint)bp).Line == sourceBreakpoint.line);
 				var enumerable = breakEvents as BreakEvent[] ?? breakEvents.ToArray();
 				if (enumerable.Any())
 				{
@@ -501,12 +517,12 @@ namespace UnityDebug
 				}
 				else
 				{
-					var breakpoint = _session.Breakpoints.Add(path, sourceBreakpoint.line);
+					var breakpoint = m_Session.Breakpoints.Add(path, sourceBreakpoint.line);
 					breakpoint.ConditionExpression = sourceBreakpoint.condition;
 				}
 			}
 
-			breakpoints = newBreakpoints;
+			m_Breakpoints = newBreakpoints;
 
 			var responseBreakpoints = newBreakpoints.Select(sourceBreakpoint =>
 				new VSCodeDebug.Breakpoint(true, sourceBreakpoint.line, sourceBreakpoint.column, sourceBreakpoint.logMessage)).ToList();
@@ -557,7 +573,7 @@ namespace UnityDebug
 						}
 					}
 
-					var frameHandle = _frameHandles.Create(frame);
+					var frameHandle = m_FrameHandles.Create(frame);
 					string name = frame.SourceLocation.MethodName;
 					int line = frame.SourceLocation.Line;
 					stackFrames.Add(new VSCodeDebug.StackFrame(frameHandle, name, source, ConvertDebuggerLineToClient(line), 0, hint));
@@ -569,8 +585,8 @@ namespace UnityDebug
 
 		private ThreadInfo DebuggerActiveThread()
 		{
-			lock (_lock) {
-				return _session == null ? null : _session.ActiveThread;
+			lock (m_Lock) {
+				return m_Session == null ? null : m_Session.ActiveThread;
 			}
 		}
 
@@ -581,17 +597,17 @@ namespace UnityDebug
 		public override void Scopes(Response response, dynamic args) {
 
 			int frameId = getInt(args, "frameId", 0);
-			var frame = _frameHandles.Get(frameId, null);
+			var frame = m_FrameHandles.Get(frameId, null);
 
 			var scopes = new List<Scope>();
 
-			if (frame.Index == 0 && _exception != null) {
-				scopes.Add(new Scope("Exception", _variableHandles.Create(new ObjectValue[] { _exception })));
+			if (frame.Index == 0 && m_Exception != null) {
+				scopes.Add(new Scope("Exception", m_VariableHandles.Create(new ObjectValue[] { m_Exception })));
 			}
 
 			var locals = new[] { frame.GetThisReference() }.Concat(frame.GetParameters()).Concat(frame.GetLocalVariables()).Where(x => x != null).ToArray();
 			if (locals.Length > 0) {
-				scopes.Add(new Scope("Local", _variableHandles.Create(locals)));
+				scopes.Add(new Scope("Local", m_VariableHandles.Create(locals)));
 			}
 
 			SendResponse(response, new ScopesResponseBody(scopes));
@@ -609,7 +625,7 @@ namespace UnityDebug
 			var variables = new List<Variable>();
 
 			ObjectValue[] children;
-			if (_variableHandles.TryGet(reference, out children)) {
+			if (m_VariableHandles.TryGet(reference, out children)) {
 				if (children != null && children.Length > 0) {
 
 					bool more = false;
@@ -648,11 +664,11 @@ namespace UnityDebug
 		public override void Threads(Response response, dynamic args)
 		{
 			var threads = new List<VSCodeDebug.Thread>();
-			var process = _activeProcess;
+			var process = m_ActiveProcess;
 			if (process != null) {
 				Dictionary<int, VSCodeDebug.Thread> d;
-				lock (_seenThreads) {
-					d = new Dictionary<int, VSCodeDebug.Thread>(_seenThreads);
+				lock (m_SeenThreads) {
+					d = new Dictionary<int, VSCodeDebug.Thread>(m_SeenThreads);
 				}
 				foreach (var t in process.GetThreads()) {
 					int tid = (int)t.Id;
@@ -720,12 +736,12 @@ namespace UnityDebug
 			}
 			SendOutput("stdout", "Valid expression " + args);
 
-			var evaluationOptions = _debuggerSessionOptions.EvaluationOptions.Clone();
+			var evaluationOptions = m_DebuggerSessionOptions.EvaluationOptions.Clone();
 			evaluationOptions.EllipsizeStrings = false;
 			evaluationOptions.AllowMethodEvaluation = true;
-			_session.Options.EvaluationOptions = evaluationOptions;
-			_session.Options.ProjectAssembliesOnly = true;
-			_session.Options.StepOverPropertiesAndOperators = false;
+			m_Session.Options.EvaluationOptions = evaluationOptions;
+			m_Session.Options.ProjectAssembliesOnly = true;
+			m_Session.Options.StepOverPropertiesAndOperators = false;
 			var val = Frame.GetExpressionValue(expression, true);
 			SendOutput("stdout", "Sent expression");
 			val.WaitHandle.WaitOne();
@@ -756,7 +772,7 @@ namespace UnityDebug
 			int handle = 0;
 			if (val.HasChildren)
 			{
-				handle = _variableHandles.Create(val.GetAllChildren());
+				handle = m_VariableHandles.Create(val.GetAllChildren());
 			}
 
 			SendResponse(response, new EvaluateResponseBody(val.DisplayValue, handle));
@@ -779,17 +795,9 @@ namespace UnityDebug
 		}
 
 		private void Terminate(string reason) {
-			if (!_terminated) {
-
-				// wait until we've seen the end of stdout and stderr
-				for (int i = 0; i < 100 && (_stdoutEOF == false || _stderrEOF == false); i++) {
-					System.Threading.Thread.Sleep(100);
-				}
-
+			if (!m_Terminated) {
 				SendEvent(new TerminatedEvent());
-
-				_terminated = true;
-				_process = null;
+				m_Terminated = true;
 			}
 		}
 
@@ -800,8 +808,8 @@ namespace UnityDebug
 
 		private ThreadInfo FindThread(int threadReference)
 		{
-			if (_activeProcess != null) {
-				foreach (var t in _activeProcess.GetThreads()) {
+			if (m_ActiveProcess != null) {
+				foreach (var t in m_ActiveProcess.GetThreads()) {
 					if (t.Id == threadReference) {
 						return t;
 					}
@@ -812,9 +820,9 @@ namespace UnityDebug
 
 		private void Stopped()
 		{
-			_exception = null;
-			_variableHandles.Reset();
-			_frameHandles.Reset();
+			m_Exception = null;
+			m_VariableHandles.Reset();
+			m_FrameHandles.Reset();
 		}
 
 		/*private Variable CreateVariable(ObjectValue v)
@@ -829,7 +837,7 @@ namespace UnityDebug
 			if (dv.Length > 1 && dv [0] == '{' && dv [dv.Length - 1] == '}') {
 				dv = dv.Substring (1, dv.Length - 2);
 			}
-			return new Variable(v.Name, dv, v.TypeName, v.HasChildren ? _variableHandles.Create(v.GetAllChildren()) : 0);
+			return new Variable(v.Name, dv, v.TypeName, v.HasChildren ? m_VariableHandles.Create(v.GetAllChildren()) : 0);
 		}
 
 		private Backtrace DebuggerActiveBacktrace() {
@@ -896,16 +904,16 @@ namespace UnityDebug
 		
 		private void DebuggerKill()
 		{
-			lock (_lock) {
-				if (_session != null) {
+			lock (m_Lock) {
+				if (m_Session != null) {
 
-					_debuggeeExecuting = true;
+					m_DebuggeeExecuting = true;
 
-					if (!_session.HasExited)
-						_session.Exit();
+					if (!m_Session.HasExited)
+						m_Session.Exit();
 
-					_session.Dispose();
-					_session = null;
+					m_Session.Dispose();
+					m_Session = null;
 				}
 			}
 		}

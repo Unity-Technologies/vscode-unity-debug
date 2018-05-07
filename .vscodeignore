@@ -2,7 +2,8 @@
 **
 **/.DS_Store
 **/.mdb
-!attach.js
+!MonoDebug/**
+!attach.ts
 !package.json
 !bin/**
 !Changelog.txt

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Mono.Debugging.Client;
 using MonoDevelop.Debugger.Soft.Unity;
+using MonoDevelop.Debugger.VsCodeDebugProtocol;
 using VSCodeDebug;
 
 namespace UnityDebug
@@ -79,6 +80,12 @@ namespace UnityDebug
 			DebugSession debugSession = new UnityDebugSession();
 			DebuggerLoggingService.CustomLogger = new CustomLogger();
 			debugSession.Start(inputStream, outputStream).Wait();
+		}
+
+		static void RunVSSession(Stream inputStream, Stream outputStream)
+		{
+			VSCodeDebuggerSession debugSession = new VSCodeDebuggerSession();
+			debugSession.Start(inputStream, outputStream);
 		}
 
 		static string GetUnityProcesses()

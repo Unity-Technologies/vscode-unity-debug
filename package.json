@@ -4,8 +4,24 @@
   "version": "2.4.2",
   "publisher": "Unity",
   "description": "Unity debugger extension",
+  "license": "MIT",
   "engines": {
-    "vscode": "^0.10.1"
+    "vscode": "^1.22.0"
+  },
+  "dependencies": {
+    "make": "^0.8.1",
+    "vscode-debugprotocol": "^1.29.0",
+    "vscode-nls": "^3.2.2"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.0",
+    "babel-preset-env": "^1.6.1",
+    "mocha": "^5.1.1",
+    "typescript": "^2.8.3",
+    "vscode-debugadapter-testsupport": "^1.29.0",
+    "vsce": "^1.40.0",
+    "vscode": "^1.1.17",
+    "vscode-nls-dev": "^3.0.9"
   },
   "categories": [
     "Debuggers"
@@ -20,34 +36,38 @@
   "bugs": {
     "url": "https://github.com/Unity-Technologies/vscode-unity-debug/issues"
   },
-
   "repository": {
     "type": "git",
     "url": "https://github.com/Unity-Technologies/vscode-unity-debug.git"
   },
-
-  "icon" : "Images/unity-logo128x128.png",
-
-  "main": "./attach",
+  "icon": "Images/unity-logo128x128.png",
+  "main": "./out/attach.js",
+  "scripts": {
+    "prepare": "make build",
+    "vscode:prepublish": "make build",
+    "compile": "make build",
+    "watch": "tsc -w -p ./src/typescript",
+    "test": "make tests; mocha --timeout 10000 -u tdd ./out/tests",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
   "activationEvents": [
-        "onCommand:attach.attachToDebugger"
-    ],
-    "scripts": {
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
+    "onDebug"
+  ],
   "contributes": {
-    "commands": [{
-            "command": "attach.attachToDebugger",
-            "title": "Unity Attach Debugger"
-        }],
+    "commands": [
+      {
+        "command": "attach.attachToDebugger",
+        "title": "Unity Attach Debugger"
+      },
+      {
+        "command": "attach.configureExceptions",
+        "title": "Unity Configure Exception Breakpoints"
+      }
+    ],
     "debuggers": [
       {
         "type": "unity",
         "label": "Unity Debugger",
-        "configurationAttributes": {
-          "launch": {},
-          "attach": {}
-        },
         "enableBreakpointsFor": {
           "languageIds": [
             "csharp"
@@ -59,40 +79,7 @@
         },
         "linux": {
           "runtime": "mono"
-        },
-        "initialConfigurations": [
-          {
-            "name": "Unity Editor",
-            "type": "unity",
-            "path": "${workspaceFolder}/Library/EditorInstance.json",
-            "request": "launch"
-          },
-          {
-            "name": "Windows Player",
-            "type": "unity",
-            "request": "launch"
-          },
-          {
-            "name": "OSX Player",
-            "type": "unity",
-            "request": "launch"
-          },
-          {
-            "name": "Linux Player",
-            "type": "unity",
-            "request": "launch"
-          },
-          {
-            "name": "iOS Player",
-            "type": "unity",
-            "request": "launch"
-          },
-          {
-            "name": "Android Player",
-            "type": "unity",
-            "request": "launch"
-          }
-        ]
+        }
       }
     ]
   }

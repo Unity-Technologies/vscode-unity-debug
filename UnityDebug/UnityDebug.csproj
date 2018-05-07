@@ -57,6 +57,9 @@
     <Reference Include="ICSharpCode.NRefactory.CSharp, Version=5.0.0.0, Culture=neutral, PublicKeyToken=d4bfe873e7598c49">
       <HintPath>..\External\ICSharpCode.NRefactory.CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.Shared.VSCodeDebugProtocol, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\External\Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.Shared.VSCodeDebugProtocol, Version=15.6.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\Microsoft.VisualStudio.Shared.VsCodeDebugProtocol.15.6.20118.1\lib\net45\Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.dll</HintPath>
       <Private>True</Private>
@@ -118,10 +121,13 @@
     <Reference Include="MonoDevelop.Debugger.Soft, Version=2.6.0.0, Culture=neutral, PublicKeyToken=3ead7498f347467b">
       <HintPath>..\External\MonoDevelop.Debugger.Soft.dll</HintPath>
     </Reference>
+    <Reference Include="MonoDevelop.Debugger.VsCodeDebugProtocol, Version=0.0.0.0, Culture=neutral, PublicKeyToken=3ead7498f347467b">
+      <HintPath>..\External\MonoDevelop.Debugger.VsCodeDebugProtocol.dll</HintPath>
+    </Reference>
     <Reference Include="MonoDevelop.Unity, Version=1.4.0.3, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <HintPath>..\External\MonoDevelop.Unity.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>..\External\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
@@ -189,6 +195,10 @@
     </Compile>
     <Compile Include="Platform.cs" />
     <Compile Include="Util.cs" />
+    <Compile Include="VSCodeDebugger\VsCodeBacktrace.cs" />
+    <Compile Include="VSCodeDebugger\VSCodeDebuggerSession.cs" />
+    <Compile Include="VSCodeDebugger\VsCodeObjectSource.cs" />
+    <Compile Include="VSCodeDebugger\VsCodeStackFrame.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
