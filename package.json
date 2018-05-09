@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "make": "^0.8.1",
+    "npm": "^6.0.0",
     "vscode-debugprotocol": "^1.29.0",
     "vscode-nls": "^3.2.2"
   },
@@ -61,9 +62,63 @@
       },
       {
         "command": "attach.configureExceptions",
-        "title": "Unity Configure Exception Breakpoints"
+        "title": "Configure exception breakpoints",
+        "category": "Exceptions",
+        "icon": "Images/unity-logo128x128.png"
+      },
+      {
+        "command": "exceptions.addEntry",
+        "title": "Add",
+        "icon": {
+          "dark": "Images/dark/stage.svg",
+          "light": "Images/light/stage.svg"
+        }
+      },
+      {
+        "command": "exceptions.always",
+        "title": "Always",
+        "category": "inline"
+      },
+      {
+        "command": "exceptions.never",
+        "title": "Never"
+      },
+      {
+        "command": "exceptions.unhandled",
+        "title": "Unhandled"
       }
     ],
+    "views": {
+      "debug": [
+        {
+          "id": "exceptions",
+          "name": "Exception Breakpoints"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "exceptions.addEntry",
+          "when": "view == exceptions",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "exceptions.always",
+          "when": "view == exceptions && viewItem == exception"
+        },
+        {
+          "command": "exceptions.never",
+          "when": "view == exceptions && viewItem == exception"
+        },
+        {
+          "command": "exceptions.unhandled",
+          "when": "view == exceptions && viewItem == exception"
+        }
+      ]
+    },
     "debuggers": [
       {
         "type": "unity",
