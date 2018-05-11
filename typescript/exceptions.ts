@@ -1,4 +1,4 @@
-import {QuickPickItem, TreeDataProvider, Event, EventEmitter, TreeItem, ProviderResult, window} from 'vscode';
+import {QuickPickItem, TreeDataProvider, Event, EventEmitter, TreeItem, ProviderResult, window, InputBoxOptions} from 'vscode';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 import {DebugProtocol} from 'vscode-debugprotocol';
@@ -40,6 +40,20 @@ export class Exceptions implements TreeDataProvider<Exception> {
         element.mode = "unhandled";
         this._onDidChangeTreeData.fire();
         this.setExceptionBreakpoints(this.exceptions);
+    }
+
+    public addEntry(t: any) {
+        let options: InputBoxOptions = {
+            placeHolder: "(Namespace.ExceptionName)"
+        }
+        
+        window.showInputBox(options).then(value => {
+            if (!value) {
+                return;
+            }
+            this.exceptions[value] = "never";
+            this._onDidChangeTreeData.fire();
+        });
     }
 
     setExceptionBreakpoints(model: ExceptionConfigurations) {

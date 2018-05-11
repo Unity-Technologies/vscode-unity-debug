@@ -12,6 +12,8 @@ using System.Linq;
 using System.Net;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
 using Mono.Debugging.Client;
+using Mono.Debugging.Evaluation;
+using Mono.Debugging.Soft;
 using VSCodeDebug;
 using MonoDevelop.Debugger.Soft.Unity;
 using MonoDevelop.Unity.Debugger;
@@ -192,7 +194,7 @@ namespace UnityDebug
 				supportsConfigurationDoneRequest = false,
 
 				// This debug adapter does not support function breakpoints.
-				supportsFunctionBreakpoints = true,
+				supportsFunctionBreakpoints = false,
 
 				// This debug adapter doesn't support conditional breakpoints.
 				supportsConditionalBreakpoints = true,
@@ -207,11 +209,7 @@ namespace UnityDebug
 				supportsSetVariable = true,
 
 				// This debug adapter does not support exception breakpoint filters
-				exceptionBreakpointFilters = new[]
-				{
-					new ExceptionBreakpointsFilter("all_exceptions", "All Exceptions"),
-					new ExceptionBreakpointsFilter("unhandled", "Unhandled_exceptions"), 
-				}
+				exceptionBreakpointFilters = new ExceptionBreakpointsFilter[0]
 			});
 
 			// Mono Debug is ready to accept breakpoints immediately
@@ -435,8 +433,6 @@ namespace UnityDebug
 
 		protected override void SetVariable(Response response, object args)
 		{
-			SendOutput("stdout", "Found this: " + args);
-			SendOutput("stdout", "This is response: " + response);
 			int reference = getInt(args, "variablesReference", -1);
 			if (reference == -1) {
 				SendErrorResponse(response, 3009, "variables: property 'variablesReference' is missing", null, false, true);
@@ -679,45 +675,8 @@ namespace UnityDebug
 			SendResponse(response, new ThreadsResponseBody(threads));
 		}
 
-		private static string ParseEvaluate(string expression)
-		{
-			// Parse expressions created by using "Add Watch" in VS Code.
-			// Add Watch expressions examples:
-			// Done_PlayerController this.UnityEngine.GameObject gameObject.UnityEngine.SceneManagement.Scene scene.bool isLoaded
-			// Done_PlayerController this.UnityEngine.GameObject gameObject. Static members. Non-public members.int OffsetOfInstanceIDInCPlusPlusObject
-
-			// Replace "Static members" and "Non-public members" with strings without spaces, so we can Split the string correctly.
-			var exp = expression.Replace ("Static members.", "static-members").Replace ("Non-public members.", "non-public-members");
-			var expStrings = exp.Split (' ');
-			var parsedExpression = "";
-
-			if (expStrings.Length > 1) 
-			{
-				foreach (var subexp in expStrings) 
-				{
-					// Skip static and non public members substrings
-					if (subexp.StartsWith ("static-members") || subexp.StartsWith ("non-public-members"))
-						continue;
-
-					// If array operator, remove previous '.'
-					if (subexp.StartsWith ("["))
-						parsedExpression = parsedExpression.Substring (0, parsedExpression.Length - 1);
-
-					int index = subexp.IndexOf ('.');
-
-					if (index > 0) 
-						parsedExpression += subexp.Substring (0, index + 1);
-				}
-
-				parsedExpression += expStrings.Last ();
-				Log.Write ("Parsed Expression: '" + expression + "' -> '" + parsedExpression + "'");
-			}
-			return parsedExpression;
-		}
-
 		public override void Evaluate(Response response, dynamic args)
 		{
-			SendOutput("stdout", "Starting");
 			var expression = getString(args, "expression");
 
 			if (expression == null) {
@@ -734,18 +693,12 @@ namespace UnityDebug
 				SendError(response, "invalid expression");
 				return;
 			}
-			SendOutput("stdout", "Valid expression " + args);
 
 			var evaluationOptions = m_DebuggerSessionOptions.EvaluationOptions.Clone();
 			evaluationOptions.EllipsizeStrings = false;
 			evaluationOptions.AllowMethodEvaluation = true;
-			m_Session.Options.EvaluationOptions = evaluationOptions;
-			m_Session.Options.ProjectAssembliesOnly = true;
-			m_Session.Options.StepOverPropertiesAndOperators = false;
 			var val = Frame.GetExpressionValue(expression, true);
-			SendOutput("stdout", "Sent expression");
 			val.WaitHandle.WaitOne();
-			SendOutput("stdout", "Waiting");
 
 			var flags = val.Flags;
 			if (flags.HasFlag(ObjectValueFlags.Error) || flags.HasFlag(ObjectValueFlags.NotSupported))

@@ -7,8 +7,6 @@ import {exec} from 'child_process';
 import { Exceptions, ExceptionConfigurations } from './exceptions';
 
 const localize = nls.config({locale: process.env.VSCODE_NLS_CONFIG})();
-
-const configuration = workspace.getConfiguration('unity-debug');
 var exceptions;
 
 const DEFAULT_EXCEPTIONS: ExceptionConfigurations = {
@@ -33,7 +31,7 @@ export function activate(context: ExtensionContext) {
     window.registerTreeDataProvider("exceptions", exceptions);
     context.subscriptions.push(commands.registerCommand('exceptions.always', exception => exceptions.always(exception)));
     context.subscriptions.push(commands.registerCommand('exceptions.never', exception => exceptions.never(exception)));
-    context.subscriptions.push(commands.registerCommand('exceptions.unhandled', exception => exceptions.unhandled(exception)));
+    context.subscriptions.push(commands.registerCommand('exceptions.addEntry', t => exceptions.addEntry(t)));
 	context.subscriptions.push(commands.registerCommand('attach.attachToDebugger', config => startSession(context, config)));
 }
 
@@ -82,7 +80,6 @@ class UnityDebugConfigurationProvider implements DebugConfigurationProvider {
         if (debugConfiguration && !debugConfiguration.__exceptionOptions) {
             debugConfiguration.__exceptionOptions = exceptions.convertToExceptionOptionsDefault();
         }
-		console.log("dimmer resolve");
 		return debugConfiguration;
 	}
 }

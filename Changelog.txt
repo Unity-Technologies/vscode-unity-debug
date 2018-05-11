@@ -6,6 +6,10 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.5.0
+=====
+ - New support for halt on exception. In debug view a list of exceptions control which to break on.
+
 2.4.2
 =====
  - Added support for Library/EditorInstance.json. The correct process is attached and multiple editors are running.

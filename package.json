@@ -1,7 +1,7 @@
 {
   "name": "unity-debug",
   "displayName": "Debugger for Unity",
-  "version": "2.4.2",
+  "version": "2.5.0",
   "publisher": "Unity",
   "description": "Unity debugger extension",
   "license": "MIT",
@@ -41,14 +41,13 @@
     "type": "git",
     "url": "https://github.com/Unity-Technologies/vscode-unity-debug.git"
   },
-  "icon": "Images/unity-logo128x128.png",
+  "icon": "Images/dark/Unity.png",
   "main": "./out/attach.js",
   "scripts": {
     "prepare": "make build",
     "vscode:prepublish": "make build",
     "compile": "make build",
     "watch": "tsc -w -p ./src/typescript",
-    "test": "make tests; mocha --timeout 10000 -u tdd ./out/tests",
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "activationEvents": [
@@ -61,12 +60,6 @@
         "title": "Unity Attach Debugger"
       },
       {
-        "command": "attach.configureExceptions",
-        "title": "Configure exception breakpoints",
-        "category": "Exceptions",
-        "icon": "Images/unity-logo128x128.png"
-      },
-      {
         "command": "exceptions.addEntry",
         "title": "Add",
         "icon": {
@@ -76,16 +69,11 @@
       },
       {
         "command": "exceptions.always",
-        "title": "Always",
-        "category": "inline"
+        "title": "Always"
       },
       {
         "command": "exceptions.never",
         "title": "Never"
-      },
-      {
-        "command": "exceptions.unhandled",
-        "title": "Unhandled"
       }
     ],
     "views": {
@@ -111,10 +99,6 @@
         },
         {
           "command": "exceptions.never",
-          "when": "view == exceptions && viewItem == exception"
-        },
-        {
-          "command": "exceptions.unhandled",
           "when": "view == exceptions && viewItem == exception"
         }
       ]
