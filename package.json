@@ -10,19 +10,11 @@
   },
   "dependencies": {
     "make": "^0.8.1",
+    "@types/node": "^10.0.8",
     "npm": "^6.0.0",
+    "vscode": "^1.1.17",
     "vscode-debugprotocol": "^1.29.0",
     "vscode-nls": "^3.2.2"
-  },
-  "devDependencies": {
-    "@types/mocha": "^5.2.0",
-    "babel-preset-env": "^1.6.1",
-    "mocha": "^5.1.1",
-    "typescript": "^2.8.3",
-    "vscode-debugadapter-testsupport": "^1.29.0",
-    "vsce": "^1.40.0",
-    "vscode": "^1.1.17",
-    "vscode-nls-dev": "^3.0.9"
   },
   "categories": [
     "Debuggers"

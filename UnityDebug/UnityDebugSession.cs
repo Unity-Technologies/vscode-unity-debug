@@ -12,8 +12,6 @@ using System.Linq;
 using System.Net;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
 using Mono.Debugging.Client;
-using Mono.Debugging.Evaluation;
-using Mono.Debugging.Soft;
 using VSCodeDebug;
 using MonoDevelop.Debugger.Soft.Unity;
 using MonoDevelop.Unity.Debugger;
@@ -352,7 +350,6 @@ namespace UnityDebug
 
 		public override void SetFunctionBreakpoints(Response response, dynamic arguments)
 		{
-			SendOutput("stdout", arguments.ToString());
 			var breakpoints = new List<ResponseBreakpoint>();
 			foreach (var breakpoint in arguments.breakpoints)
 			{

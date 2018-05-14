@@ -120,7 +120,7 @@ class Exception extends TreeItem {
     }
 
     get label(): string {
-        return `${this.mode} : ${this.name}`;
+        return `[${this.mode == "always" ? "✔" : "✖"}] ${this.name}`;
     }
 
     set label(newLabel: string) {
@@ -128,7 +128,7 @@ class Exception extends TreeItem {
     }
 
     get tooltip(): string {
-        return `${this.mode} : ${this.name}`;
+        return `[${this.mode == "always" ? "✔" : "✖"}] ${this.name}`;
     }
 
     contextValue = 'exception';
