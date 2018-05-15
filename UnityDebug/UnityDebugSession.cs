@@ -694,7 +694,7 @@ namespace UnityDebug
 			var evaluationOptions = m_DebuggerSessionOptions.EvaluationOptions.Clone();
 			evaluationOptions.EllipsizeStrings = false;
 			evaluationOptions.AllowMethodEvaluation = true;
-			var val = Frame.GetExpressionValue(expression, true);
+			var val = Frame.GetExpressionValue(expression, evaluationOptions);
 			val.WaitHandle.WaitOne();
 
 			var flags = val.Flags;
