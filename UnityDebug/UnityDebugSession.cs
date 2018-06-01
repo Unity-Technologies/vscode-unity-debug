@@ -7,26 +7,28 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
 using Mono.Debugging.Client;
-using VSCodeDebug;
+using Mono.Debugging.Soft;
 using MonoDevelop.Debugger.Soft.Unity;
 using MonoDevelop.Unity.Debugger;
 using Newtonsoft.Json.Linq;
+using VSCodeDebug;
 using Breakpoint = Mono.Debugging.Client.Breakpoint;
-using ResponseBreakpoint = Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages.Breakpoint;
 using ExceptionBreakpointsFilter = VSCodeDebug.ExceptionBreakpointsFilter;
 using InitializedEvent = VSCodeDebug.InitializedEvent;
 using OutputEvent = VSCodeDebug.OutputEvent;
+using ResponseBreakpoint = Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages.Breakpoint;
 using Scope = VSCodeDebug.Scope;
 using Source = VSCodeDebug.Source;
 using SourceBreakpoint = VSCodeDebug.SourceBreakpoint;
 using StackFrame = Mono.Debugging.Client.StackFrame;
 using StoppedEvent = VSCodeDebug.StoppedEvent;
 using TerminatedEvent = VSCodeDebug.TerminatedEvent;
+using Thread = VSCodeDebug.Thread;
 using ThreadEvent = VSCodeDebug.ThreadEvent;
 using UnityProcessInfo = MonoDevelop.Debugger.Soft.Unity.UnityProcessInfo;
 using Variable = VSCodeDebug.Variable;
@@ -46,24 +48,26 @@ namespace UnityDebug
 		private const int MAX_CONNECTION_ATTEMPTS = 10;
 		private const int CONNECTION_ATTEMPT_INTERVAL = 500;
 
-		private AutoResetEvent m_ResumeEvent = new AutoResetEvent(false);
+		private AutoResetEvent m_ResumeEvent;
 		private bool m_DebuggeeExecuting;
 		private readonly object m_Lock = new object();
-		private Mono.Debugging.Soft.SoftDebuggerSession m_Session;
+		private SoftDebuggerSession m_Session;
 		private ProcessInfo m_ActiveProcess;
-		SourceBreakpoint[] m_Breakpoints = new SourceBreakpoint[0];
+		SourceBreakpoint[] m_Breakpoints;
 		private List<Catchpoint> m_Catchpoints;
 		private DebuggerSessionOptions m_DebuggerSessionOptions;
 
 		private Handles<ObjectValue[]> m_VariableHandles;
 		private Handles<StackFrame> m_FrameHandles;
 		private ObjectValue m_Exception;
-		private Dictionary<int, VSCodeDebug.Thread> m_SeenThreads;
+		private Dictionary<int, Thread> m_SeenThreads;
 		private bool m_Terminated;
 		IUnityDbgConnector unityDebugConnector;
 			
 		public UnityDebugSession() : base()
 		{
+			m_ResumeEvent = new AutoResetEvent(false);
+			m_Breakpoints = new SourceBreakpoint[0];
 			m_VariableHandles = new Handles<ObjectValue[]>();
 			m_FrameHandles = new Handles<Mono.Debugging.Client.StackFrame>();
 			m_SeenThreads = new Dictionary<int, VSCodeDebug.Thread>();
@@ -157,7 +161,7 @@ namespace UnityDebug
 			m_Session.TargetThreadStarted += (sender, e) => {
 				int tid = (int)e.Thread.Id;
 				lock (m_SeenThreads) {
-					m_SeenThreads[tid] = new VSCodeDebug.Thread(tid, e.Thread.Name);
+					m_SeenThreads[tid] = new Thread(tid, e.Thread.Name);
 				}
 				SendEvent(new ThreadEvent("started", tid));
 			};
@@ -275,12 +279,12 @@ namespace UnityDebug
 		{
 			lock (m_Lock) {
 
-				var args0 = new Mono.Debugging.Soft.SoftDebuggerConnectArgs(string.Empty, address, port) {
+				var args0 = new SoftDebuggerConnectArgs(string.Empty, address, port) {
 					MaxConnectionAttempts = MAX_CONNECTION_ATTEMPTS,
 					TimeBetweenConnectionAttempts = CONNECTION_ATTEMPT_INTERVAL
 				};
 
-				m_Session.Run(new Mono.Debugging.Soft.SoftDebuggerStartInfo(args0), m_DebuggerSessionOptions);
+				m_Session.Run(new SoftDebuggerStartInfo(args0), m_DebuggerSessionOptions);
 
 				m_DebuggeeExecuting = true;
 			}
@@ -361,7 +365,7 @@ namespace UnityDebug
 		public override void Continue(Response response, dynamic args)
 		{
 			WaitForSuspend();
-			SendResponse(response);
+			SendResponse(response, new ContinueResponseBody());
 			lock (m_Lock) {
 				if (m_Session == null || m_Session.IsRunning || m_Session.HasExited) return;
 
@@ -656,16 +660,16 @@ namespace UnityDebug
 
 		public override void Threads(Response response, dynamic args)
 		{
-			var threads = new List<VSCodeDebug.Thread>();
+			var threads = new List<Thread>();
 			var process = m_ActiveProcess;
 			if (process != null) {
-				Dictionary<int, VSCodeDebug.Thread> d;
+				Dictionary<int, Thread> d;
 				lock (m_SeenThreads) {
-					d = new Dictionary<int, VSCodeDebug.Thread>(m_SeenThreads);
+					d = new Dictionary<int, Thread>(m_SeenThreads);
 				}
 				foreach (var t in process.GetThreads()) {
 					int tid = (int)t.Id;
-					d[tid] = new VSCodeDebug.Thread(tid, t.Name);
+					d[tid] = new Thread(tid, t.Name);
 				}
 				threads = d.Values.ToList();
 			}

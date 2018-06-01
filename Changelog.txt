@@ -6,6 +6,10 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.6.0
+=====
+ - Multithreaded stack trace unwrapping is now enabled. Making it possible to switch context.
+
 2.5.0
 =====
  - New support for halt on exception. In debug view a list of exceptions control which to break on.

@@ -1,13 +1,16 @@
 {
   "name": "unity-debug",
   "displayName": "Debugger for Unity",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "publisher": "Unity",
   "description": "Unity debugger extension",
   "license": "MIT",
   "engines": {
     "vscode": "^1.22.0"
   },
+  "extensionDependencies": [
+    "ms-vscode.csharp"
+  ],
   "dependencies": {
     "make": "^0.8.1",
     "@types/node": "^10.0.8",
@@ -110,6 +113,16 @@
         },
         "linux": {
           "runtime": "mono"
+        },
+        "configurationAttributes": {
+          "launch": {
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Used for attaching to Unity Editor when multiple instances are running"
+              }
+            }
+          }
         }
       }
     ]

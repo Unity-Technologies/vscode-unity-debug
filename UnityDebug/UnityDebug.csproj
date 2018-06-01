@@ -64,6 +64,9 @@
       <HintPath>..\packages\Microsoft.VisualStudio.Shared.VsCodeDebugProtocol.15.6.20118.1\lib\net45\Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Mono.Addins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\External\Mono.Addins.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cairo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
       <HintPath>..\External\Mono.Cairo.dll</HintPath>
     </Reference>
@@ -195,10 +198,6 @@
     </Compile>
     <Compile Include="Platform.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="VSCodeDebugger\VsCodeBacktrace.cs" />
-    <Compile Include="VSCodeDebugger\VSCodeDebuggerSession.cs" />
-    <Compile Include="VSCodeDebugger\VsCodeObjectSource.cs" />
-    <Compile Include="VSCodeDebugger\VsCodeStackFrame.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
