@@ -26,7 +26,8 @@ Please search on the [issue track](https://github.com/Unity-Technologies/vscode-
 <!---Providing context helps us come up with a solution that is most useful in the real world-->
 
 ## Your Environment
-* VS Code Version used:
+* Unity Version:
+* VS Code Version:
 * Version of the debugger tool:
 * Operating System and version:
-* Any additional information you think could help
+<!---Any additional information you think could help-->
