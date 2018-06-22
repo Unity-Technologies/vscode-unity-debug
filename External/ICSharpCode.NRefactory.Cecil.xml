@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ICSharpCode.NRefactory.Cecil</name>
+    </assembly>
+    <members>
+        <member name="T:ICSharpCode.NRefactory.TypeSystem.CecilLoader">
+            <summary>
+            Allows loading an IProjectContent from an already compiled assembly.
+            </summary>
+            <remarks>Instance methods are not thread-safe; you need to create multiple instances of CecilLoader
+            if you want to load multiple project contents in parallel.</remarks>
+        </member>
+        <member name="F:ICSharpCode.NRefactory.TypeSystem.CecilLoader.cecilLoaderVersion">
+            <summary>
+            Version number of the cecil loader.
+            Should be incremented when fixing bugs in the cecil loader so that project contents cached on disk
+            (which might be incorrect due to the bug) are re-created.
+            </summary>
+        </member>
+        <member name="P:ICSharpCode.NRefactory.TypeSystem.CecilLoader.LazyLoad">
+            <summary>
+            Specifies whether to use lazy loading. The default is false.
+            If this property is set to true, the CecilLoader will not copy all the relevant information
+            out of the Cecil object model, but will maintain references to the Cecil objects.
+            This speeds up the loading process and avoids loading unnecessary information, but it causes
+            the Cecil objects to stay in memory (which can significantly increase memory usage).
+            It also prevents serialization of the Cecil-loaded type system.
+            </summary>
+            <remarks>
+            Because the type system can be used on multiple threads, but Cecil is not
+            thread-safe for concurrent read access, the CecilLoader will lock on the <see cref="T:Mono.Cecil.ModuleDefinition"/> instance
+            for every delay-loading operation.
+            If you access the Cecil objects directly in your application, you may need to take the same lock.
+            </remarks>
+        </member>
+        <member name="P:ICSharpCode.NRefactory.TypeSystem.CecilLoader.OnEntityLoaded">
+            <summary>
+            This delegate gets executed whenever an entity was loaded.
+            </summary>
+            <remarks>
+            This callback may be to build a dictionary that maps between
+            entities and cecil objects.
+            Warning: if delay-loading is used and the type system is accessed by multiple threads,
+            the callback may be invoked concurrently on multiple threads.
+            </remarks>
+        </member>
+        <member name="P:ICSharpCode.NRefactory.TypeSystem.CecilLoader.HasCecilReferences">
+            <summary>
+            Gets a value indicating whether this instance stores references to the cecil objects.
+            </summary>
+            <value>
+            <c>true</c> if this instance has references to the cecil objects; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:ICSharpCode.NRefactory.TypeSystem.CecilLoader.ShortenInterfaceImplNames">
+            <summary>
+            Specifies whether method names of explicit interface-implementations should be shortened.
+            </summary>
+            <remarks>This is important when working with parser-initialized type-systems in order to be consistent.</remarks>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ICSharpCode.NRefactory.TypeSystem.CecilLoader"/> class.
+            </summary>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ICSharpCode.NRefactory.TypeSystem.CecilLoader"/> class.
+            </summary>
+            <param name='createCecilReferences'>
+            If true references to the cecil objects are hold. In this case the cecil loader can do a type system -> cecil mapping.
+            </param>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.#ctor(ICSharpCode.NRefactory.TypeSystem.CecilLoader)">
+            <summary>
+            Creates a nested CecilLoader for lazy-loading.
+            </summary>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.LoadAssembly(Mono.Cecil.AssemblyDefinition)">
+            <summary>
+            Loads the assembly definition into a project content.
+            </summary>
+            <returns>Unresolved type system representing the assembly</returns>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.LoadModule(Mono.Cecil.ModuleDefinition)">
+            <summary>
+            Loads the module definition into a project content.
+            </summary>
+            <returns>Unresolved type system representing the assembly</returns>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.SetCurrentModule(Mono.Cecil.ModuleDefinition)">
+            <summary>
+            Sets the current module.
+            This causes ReadTypeReference() to use <see cref="F:ICSharpCode.NRefactory.TypeSystem.Implementation.DefaultAssemblyReference.CurrentAssembly"/> for references
+            in that module.
+            </summary>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.LoadType(Mono.Cecil.TypeDefinition)">
+            <summary>
+            Loads a type from Cecil.
+            </summary>
+            <param name="typeDefinition">The Cecil TypeDefinition.</param>
+            <returns>ITypeDefinition representing the Cecil type.</returns>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.ReadTypeReference(Mono.Cecil.TypeReference,Mono.Cecil.ICustomAttributeProvider)">
+            <summary>
+            Reads a type reference.
+            </summary>
+            <param name="type">The Cecil type reference that should be converted into
+            a type system type reference.</param>
+            <param name="typeAttributes">Attributes associated with the Cecil type reference.
+            This is used to support the 'dynamic' type.</param>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.ReadSecurityDeclaration(Mono.Cecil.SecurityDeclaration)">
+            <summary>
+            Reads a security declaration.
+            </summary>
+        </member>
+        <member name="M:ICSharpCode.NRefactory.TypeSystem.CecilLoader.FinishLazyLoading(ICSharpCode.NRefactory.TypeSystem.IUnresolvedAssembly)">
+            <summary>
+            Given an assembly that was created by the CecilLoader with lazy-loading enabled,
+            this method will eagerly load all classes, and free any references to the source Cecil objects.
+            
+            The intended usage pattern for this method is:
+            1. use lazy-loading to improve the latency when new assemblies have to be loaded
+            2. later, when the CPU is idle, call FinishLazyLoading() to free up the memory consumed by the Cecil objects
+            </summary>
+        </member>
+    </members>
+</doc>

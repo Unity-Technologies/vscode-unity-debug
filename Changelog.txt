@@ -6,6 +6,10 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.6.1
+=====
+ - Updated debugger-libs to stop hovering from stack overflowing, due to miss use of NRefactory.
+
 2.6.0
 =====
  - Multithreaded stack trace unwrapping is now enabled. Making it possible to switch context.
