@@ -103,10 +103,12 @@ function startSession(context: ExtensionContext, config: any) {
                 if (!string) {
                     return;
                 }
-                config.name    = string;
-                config.request = "launch";
-                config.type    = "unity";
-                config.__exceptionOptions = exceptions.convertToExceptionOptionsDefault();
+                const config = {
+                    "name": string,
+                    "request": "launch",
+                    "type": "unity",
+                    "__exceptionOptions": exceptions.convertToExceptionOptionsDefault()
+                }
                 debug.startDebugging(undefined, config)
                     .then(function (response) {
                             console.log(response);

@@ -6,6 +6,14 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.6.3
+=====
+ - Fix regression within attach unity debugger. This is necessary when EditorInstance.json does not exist.
+
+2.6.2
+=====
+ - Missing EditorInstance.json file will no longer crash the program, instead it will terminated and report steps the user should take.
+
 2.6.1
 =====
  - Updated debugger-libs to stop hovering from stack overflowing, due to miss use of NRefactory.
