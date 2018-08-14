@@ -65,6 +65,7 @@ namespace UnityDebug
 
 		public UnityDebugSession()
 		{
+			Log.Write("Constructing UnityDebugSession");
 			m_ResumeEvent = new AutoResetEvent(false);
 			m_Breakpoints = new SourceBreakpoint[0];
 			m_VariableHandles = new Handles<ObjectValue[]>();
@@ -176,6 +177,8 @@ namespace UnityDebug
 			m_Session.OutputWriter = (isStdErr, text) => {
 				SendOutput(isStdErr ? "stderr" : "stdout", text);
 			};
+
+			Log.Write("Done constructing UnityDebugSession");
 		}
 
 		public StackFrame Frame { get; set; }
@@ -224,15 +227,18 @@ namespace UnityDebug
 
 		public override void Attach(Response response, dynamic args)
 		{
+			Log.Write($"UnityDebug: Attach: {response} ; {args}");
 			string name = GetString (args, "name");
 
 			SetExceptionBreakpoints(args.__exceptionOptions);
 
+			Log.Write($"UnityDebug: Searching for Unity process '{name}'");
 			SendOutput("stdout", "UnityDebug: Searching for Unity process '" + name + "'");
 
 			var processes = UnityAttach.GetAttachableProcesses(name).ToArray ();
 
 			if (processes.Length == 0) {
+				Log.Write($"Could not find target name '{name}'.");
 				SendErrorResponse (response, 8001, "Could not find target name '{_name}'. Is it running?", new { _name = name});
 				return;
 			}
@@ -266,24 +272,31 @@ namespace UnityDebug
 
 			Connect(attachInfo.Address, attachInfo.Port);
 
+			Log.Write($"UnityDebug: Attached to Unity process '{process.Name}' ({process.Id})");
 			SendOutput("stdout", "UnityDebug: Attached to Unity process '" + process.Name + "' (" + process.Id + ")\n");
 			SendResponse(response);
 		}
 
 		void TooManyInstances(Response response, string name, UnityProcessInfo[] processes)
 		{
+			Log.Write($"Multiple targets with name '{name}' running. Unable to connect.");
 			SendErrorResponse(response, 8002, "Multiple targets with name '{_name}' running. Unable to connect.\n" +
 				"Use \"Unity Attach Debugger\" from the command palette (View > Command Palette...) to specify which process to attach to.", new { _name = name });
 
+			Log.Write($"UnityDebug: Multiple targets with name '{name}' running. Unable to connect.)");
 			SendOutput("stdout", "UnityDebug: Multiple targets with name '" + name + "' running. Unable to connect.\n" +
 				"Use \"Unity Attach Debugger\" from the command palette (View > Command Palette...) to specify which process to attach to.");
 
 			foreach (var p in processes)
+			{
+				Log.Write($"UnityDebug: Found Unity process '{p.Name}' ({p.Id})");
 				SendOutput("stdout", "UnityDebug: Found Unity process '" + p.Name + "' (" + p.Id + ")\n");
+			}
 		}
 
 		void Connect(IPAddress address, int port)
 		{
+			Log.Write($"UnityDebug: Connect to: {address}:{port}");
 			lock (m_Lock) {
 
 				var args0 = new SoftDebuggerConnectArgs(string.Empty, address, port) {
@@ -300,6 +313,7 @@ namespace UnityDebug
 		//---- private ------------------------------------------
 		void SetExceptionBreakpoints(dynamic exceptionOptions)
 		{
+			Log.Write($"UnityDebug: SetExceptionBreakpoints: {exceptionOptions}");
 			if (exceptionOptions == null)
 			{
 				return;
@@ -338,6 +352,8 @@ namespace UnityDebug
 
 		public override void Disconnect(Response response, dynamic args)
 		{
+			Log.Write($"UnityDebug: Disconnect: {args}");
+			Log.Write($"UnityDebug: Disconnect: {response}");
 			if (unityDebugConnector != null) {
 				unityDebugConnector.OnDisconnect ();
 				unityDebugConnector = null;
@@ -361,12 +377,14 @@ namespace UnityDebug
 
 		public override void SetFunctionBreakpoints(Response response, dynamic arguments)
 		{
+			Log.Write($"UnityDebug: SetFunctionBreakpoints: {response} ; {arguments}");
 			var breakpoints = new List<ResponseBreakpoint>();
 			SendResponse(response, new SetFunctionBreakpointsResponse(breakpoints));
 		}
 
-		public override void Continue(Response response, dynamic args)
+		public override void Continue(Response response, dynamic arguments)
 		{
+			Log.Write($"UnityDebug: Continue: {response} ; {arguments}");
 			WaitForSuspend();
 			SendResponse(response, new ContinueResponseBody());
 			lock (m_Lock) {
@@ -377,16 +395,9 @@ namespace UnityDebug
 			}
 		}
 
-		void WaitForSuspend()
+		public override void Next(Response response, dynamic arguments)
 		{
-			if (!m_DebuggeeExecuting) return;
-
-			m_ResumeEvent.WaitOne();
-			m_DebuggeeExecuting = false;
-		}
-
-		public override void Next(Response response, dynamic args)
-		{
+			Log.Write($"UnityDebug: Next: {response} ; {arguments}");
 			WaitForSuspend();
 			SendResponse(response);
 			lock (m_Lock) {
@@ -397,8 +408,9 @@ namespace UnityDebug
 			}
 		}
 
-		public override void StepIn(Response response, dynamic args)
+		public override void StepIn(Response response, dynamic arguments)
 		{
+			Log.Write($"UnityDebug: StepIn: {response} ; {arguments}");
 			WaitForSuspend();
 			SendResponse(response);
 			lock (m_Lock) {
@@ -409,8 +421,9 @@ namespace UnityDebug
 			}
 		}
 
-		public override void StepOut(Response response, dynamic args)
+		public override void StepOut(Response response, dynamic arguments)
 		{
+			Log.Write($"UnityDebug: StepIn: {response} ; {arguments}");
 			WaitForSuspend();
 			SendResponse(response);
 			lock (m_Lock) {
@@ -421,8 +434,9 @@ namespace UnityDebug
 			}
 		}
 
-		public override void Pause(Response response, dynamic args)
+		public override void Pause(Response response, dynamic arguments)
 		{
+			Log.Write($"UnityDebug: StepIn: {response} ; {arguments}");
 			SendResponse(response);
 			PauseDebugger();
 		}
@@ -435,15 +449,15 @@ namespace UnityDebug
 			}
 		}
 
-		protected override void SetVariable(Response response, object args)
+		protected override void SetVariable(Response response, object arguments)
 		{
-			var reference = GetInt(args, "variablesReference", -1);
+			var reference = GetInt(arguments, "variablesReference", -1);
 			if (reference == -1) {
 				SendErrorResponse(response, 3009, "variables: property 'variablesReference' is missing", null, false, true);
 				return;
 			}
 
-			var value = GetString(args, "value");
+			var value = GetString(arguments, "value");
 			if (m_VariableHandles.TryGet(reference, out var children)) {
 				if (children != null && children.Length > 0) {
 					if (children.Length > MAX_CHILDREN) {
@@ -455,7 +469,7 @@ namespace UnityDebug
 							continue;
 						v.WaitHandle.WaitOne();
 						var variable = CreateVariable(v);
-						if (variable.name == GetString(args, "name"))
+						if (variable.name == GetString(arguments, "name"))
 						{
 							v.Value = value;
 							SendResponse(response, new SetVariablesResponseBody(value, variable.type, variable.variablesReference));
@@ -465,17 +479,19 @@ namespace UnityDebug
 			}
 		}
 
-		public override void SetExceptionBreakpoints(Response response, dynamic args)
+		public override void SetExceptionBreakpoints(Response response, dynamic arguments)
 		{
-			SetExceptionBreakpoints(args.exceptionOptions);
+			Log.Write($"UnityDebug: StepIn: {response} ; {arguments}");
+			SetExceptionBreakpoints(arguments.exceptionOptions);
 			SendResponse(response);
 		}
 
-		public override void SetBreakpoints(Response response, dynamic args)
+		public override void SetBreakpoints(Response response, dynamic arguments)
 		{
+			Log.Write($"UnityDebug: SetBreakpoints: {response} ; {arguments}");
 			string path = null;
-			if (args.source != null) {
-				var p = (string)args.source.path;
+			if (arguments.source != null) {
+				var p = (string)arguments.source.path;
 				if (p != null && p.Trim().Length > 0) {
 					path = p;
 				}
@@ -491,7 +507,7 @@ namespace UnityDebug
 				return;
 			}
 
-			SourceBreakpoint[] newBreakpoints = getBreakpoints(args, "breakpoints");
+			SourceBreakpoint[] newBreakpoints = getBreakpoints(arguments, "breakpoints");
 			var lines = newBreakpoints.Select(bp => bp.line);
 			var breakpointsToRemove = m_Breakpoints.Where(bp => !lines.Contains(bp.line)).ToArray();
 			foreach (Breakpoint breakpoint in m_Session.Breakpoints.GetBreakpoints())
@@ -524,10 +540,11 @@ namespace UnityDebug
 			SendResponse(response, new SetBreakpointsResponseBody(responseBreakpoints));
 		}
 
-		public override void StackTrace(Response response, dynamic args)
+		public override void StackTrace(Response response, dynamic arguments)
 		{
-			int maxLevels = GetInt(args, "levels", 10);
-			int threadReference = GetInt(args, "threadId", 0);
+			Log.Write($"UnityDebug: StackTrace: {response} ; {arguments}");
+			int maxLevels = GetInt(arguments, "levels", 10);
+			int threadReference = GetInt(arguments, "threadId", 0);
 
 			WaitForSuspend();
 
@@ -848,6 +865,14 @@ namespace UnityDebug
 					m_Session = null;
 				}
 			}
+		}
+
+		void WaitForSuspend()
+		{
+			if (!m_DebuggeeExecuting) return;
+
+			m_ResumeEvent.WaitOne();
+			m_DebuggeeExecuting = false;
 		}
 	}
 }

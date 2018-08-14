@@ -68,7 +68,7 @@ namespace UnityDebug
 			{
 				RunSession(Console.OpenStandardInput(), Console.OpenStandardOutput());
 			}
-			catch(Exception e) 
+			catch(Exception e)
 			{
 				Log.Write ("Exception: " + e);
 			}
@@ -76,9 +76,11 @@ namespace UnityDebug
 
 		static void RunSession(Stream inputStream, Stream outputStream)
 		{
+			Log.Write("Running session");
 			DebugSession debugSession = new UnityDebugSession();
 			DebuggerLoggingService.CustomLogger = new CustomLogger();
 			debugSession.Start(inputStream, outputStream).Wait();
+			Log.Write("Session Terminated");
 		}
 
 		static string GetUnityProcesses()
