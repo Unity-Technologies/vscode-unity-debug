@@ -1,7 +1,10 @@
 ﻿using System;
 using MonoDevelop.Debugger.Soft.Unity;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace UnityDebug
@@ -44,13 +47,24 @@ namespace UnityDebug
                     : UnityProcessDiscovery.GetProcessOptions.Players;
             }
 
+            Log.Write($"Trying to find all {options}");
             var processes = UnityProcessDiscovery.GetAttachableProcesses(options);
 
             processes.ForEach(p => Log.Write("Found Unity process: " + p.Name + " (" + p.Id + ")"));
 
-            return processId == -1
-                ? processes.Where(p => p.Name.Contains(processName))
-                : processes.Where(p => p.Name.Contains(processName) && p.Id == processId);
+            var resProcesses = processId == -1
+                ? processes.Where(p => p.Name.Contains(processName)).ToArray()
+                : processes.Where(p => p.Name.Contains(processName) && p.Id == processId).ToArray();
+
+            if (resProcesses.Length == 0)
+            {
+                Log.Write($"Could not find the correct process name: {targetName}");
+                Log.Write("These are the one that could be found: ");
+                processes = UnityProcessDiscovery.GetAttachableProcesses();
+                processes.ForEach(process => Log.Write($"{process.Name} : {process.Id}"));
+            }
+
+            return resProcesses;
         }
     }
 }

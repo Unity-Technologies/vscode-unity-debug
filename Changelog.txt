@@ -6,6 +6,18 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.6.6
+=====
+ - Fix duplicate line removing breakpoints.
+
+2.6.5
+=====
+ - Initialize commands on vs code start up time.
+
+2.6.4
+=====
+ - Improve attaching to unity processes. Added support for PS4, Xbox One, and Switch.
+
 2.6.3
 =====
  - Fix regression within attach unity debugger. This is necessary when EditorInstance.json does not exist.

@@ -1,7 +1,7 @@
 {
   "name": "unity-debug",
   "displayName": "Debugger for Unity",
-  "version": "2.6.3",
+  "version": "2.6.6",
   "publisher": "Unity",
   "description": "Unity debugger extension",
   "license": "MIT",
@@ -46,7 +46,7 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "activationEvents": [
-    "onDebug"
+    "*"
   ],
   "contributes": {
     "commands": [

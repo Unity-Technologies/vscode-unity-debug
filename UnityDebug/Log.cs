@@ -19,7 +19,7 @@ namespace UnityDebug
 		static string FormatMessage(string message)
 		{
 			var time = DateTime.Now.ToString ("HH:mm:ss.ffffff");
-			return String.Format ("{0}: {1}\n", time, message);
+			return $"{time}: {message}\n";
 		}
 
 		public static void DebugWrite(string message)
@@ -29,7 +29,7 @@ namespace UnityDebug
 		}
 
 		public static void Write(string message)
-		{	
+		{
 			var formattedMessage = FormatMessage (message);
 			lock (logPath) {
 				File.AppendAllText (logPath, formattedMessage);
