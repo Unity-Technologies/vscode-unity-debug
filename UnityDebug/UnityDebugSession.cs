@@ -284,6 +284,7 @@ namespace UnityDebug
                 }
 
                 string pathToEditorInstanceJson = GetString(args, "path");
+                pathToEditorInstanceJson = CleanPath(pathToEditorInstanceJson);
                 if (!File.Exists(pathToEditorInstanceJson))
                 {
                     TooManyInstances(response, name, processes);
@@ -302,6 +303,17 @@ namespace UnityDebug
             Log.Write($"UnityDebug: Attached to Unity process '{process.Name}' ({process.Id})");
             SendOutput("stdout", "UnityDebug: Attached to Unity process '" + process.Name + "' (" + process.Id + ")\n");
             SendResponse(response);
+        }
+
+        static string CleanPath(string pathToEditorInstanceJson)
+        {
+            var osVersion = Environment.OSVersion;
+            if (osVersion.Platform == PlatformID.MacOSX || osVersion.Platform == PlatformID.Unix)
+            {
+                return pathToEditorInstanceJson;
+            }
+
+            return pathToEditorInstanceJson.TrimStart('/');
         }
 
         void TooManyInstances(Response response, string name, UnityProcessInfo[] processes)
