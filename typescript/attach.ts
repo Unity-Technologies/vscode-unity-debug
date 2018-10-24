@@ -71,7 +71,22 @@ class UnityDebugConfigurationProvider implements DebugConfigurationProvider {
 				name: "Android Player",
 				type: "unity",
 				request: "launch"
-			}
+            },
+            {
+                name: "Xbox One Player",
+                type: "unity",
+                request: "launch"
+            },
+            {
+                name: "PS4 Player",
+                type: "unity",
+                request: "launch"
+            },
+            {
+                name: "SwitchPlayer",
+                type: "unity",
+                request: "launch"
+            }
 		];
 		return config;
 	}
