@@ -6,6 +6,10 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.6.7
+=====
+ - Fix launch settings configuration through resolve.
+
 2.6.6
 =====
  - Fix duplicate line removing breakpoints.
