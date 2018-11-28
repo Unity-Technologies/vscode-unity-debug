@@ -630,6 +630,7 @@ namespace UnityDebug
         {
             Log.Write($"UnityDebug: StackTrace: {response} ; {arguments}");
             int maxLevels = GetInt(arguments, "levels", 10);
+            int startFrame = GetInt(arguments, "startFrame", 0);
             int threadReference = GetInt(arguments, "threadId", 0);
 
             WaitForSuspend();
@@ -653,7 +654,7 @@ namespace UnityDebug
             {
                 totalFrames = bt.FrameCount;
 
-                for (var i = 0; i < Math.Min(totalFrames, maxLevels); i++)
+                for (var i = startFrame; i < Math.Min(totalFrames, startFrame + maxLevels); i++)
                 {
                     var frame = bt.GetFrame(i);
 
