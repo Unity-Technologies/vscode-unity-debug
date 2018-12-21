@@ -800,6 +800,7 @@ namespace UnityDebug
         public override void Evaluate(Response response, dynamic args)
         {
             var expression = GetString(args, "expression");
+            var frameId = GetInt(args, "frameId", 0);
 
             if (expression == null)
             {
@@ -807,13 +808,14 @@ namespace UnityDebug
                 return;
             }
 
-            if (Frame == null)
+            var frame = m_FrameHandles.Get(frameId, null);
+            if (frame == null)
             {
                 SendError(response, "no active stackframe");
                 return;
             }
 
-            if (!Frame.ValidateExpression(expression))
+            if (!frame.ValidateExpression(expression))
             {
                 SendError(response, "invalid expression");
                 return;
@@ -822,7 +824,7 @@ namespace UnityDebug
             var evaluationOptions = m_DebuggerSessionOptions.EvaluationOptions.Clone();
             evaluationOptions.EllipsizeStrings = false;
             evaluationOptions.AllowMethodEvaluation = true;
-            var val = Frame.GetExpressionValue(expression, evaluationOptions);
+            var val = frame.GetExpressionValue(expression, evaluationOptions);
             val.WaitHandle.WaitOne();
 
             var flags = val.Flags;
