@@ -71,11 +71,6 @@
             of an expression evaluation which can't be aborted.
             </summary>
         </member>
-        <member name="E:Mono.Debugging.Client.DebuggerSession.AssemblyLoaded">
-            <summary>
-            Raised when an assembly is loaded
-            </summary>
-        </member>
         <member name="M:Mono.Debugging.Client.DebuggerSession.Dispose">
             <summary>
             Releases all resource used by the <see cref="T:Mono.Debugging.Client.DebuggerSession"/> object.
@@ -430,14 +425,6 @@
             Called to attach the debugger to a running process
             </summary>
             <param name='processId'>
-            Process identifier.
-            </param>
-        </member>
-        <member name="M:Mono.Debugging.Client.DebuggerSession.OnAttachToProcess(Mono.Debugging.Client.ProcessInfo)">
-            <summary>
-            Called to attach the debugger to a running process
-            </summary>
-            <param name='processInfo'>
             Process identifier.
             </param>
         </member>
@@ -1398,12 +1385,6 @@
             BindingFlags.Static, BindingFlags.Instance, BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.DeclareOnly
             </summary>
         </member>
-        <member name="M:Mono.Debugging.Evaluation.ObjectValueAdaptor.GetMembers(Mono.Debugging.Evaluation.EvaluationContext,Mono.Debugging.Evaluation.IObjectSource,System.Object,System.Object,System.Reflection.BindingFlags)">
-            <summary>
-            Returns all members of a type. The following binding flags have to be honored:
-            BindingFlags.Static, BindingFlags.Instance, BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.DeclareOnly
-            </summary>
-        </member>
         <member name="M:Mono.Debugging.Evaluation.ObjectValueNameTracker.Disambiguate(Mono.Debugging.Evaluation.ValueReference,Mono.Debugging.Client.ObjectValue)">
             <summary>
             Disambiguate the ObjectValue's name (in the case where the property name also exists in a base class).
@@ -1422,12 +1403,6 @@
             If it does not finish after RunTimeout milliseconds, the method ends retuning False, although
             the evaluation continues in the background. In that case, when evaluation ends, the provided
             delayedDoneCallback delegate is called.
-            </summary>
-        </member>
-        <member name="P:Mono.Debugging.Evaluation.EvaluationTimer.Success">
-            <summary>
-            Indicates if the evaluation was successful. If this is false the
-            timing will not be reported and a failure will be indicated.
             </summary>
         </member>
     </members>

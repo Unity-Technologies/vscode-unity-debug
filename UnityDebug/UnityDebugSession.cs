@@ -226,7 +226,7 @@ namespace UnityDebug
                 // This debug adapter does not support function breakpoints.
                 supportsFunctionBreakpoints = false,
 
-                // This debug adapter doesn't support conditional breakpoints.
+                // This debug adapter support conditional breakpoints.
                 supportsConditionalBreakpoints = true,
 
                 // This debug adapter does support a side effect free evaluate request for data hovers.
@@ -235,6 +235,8 @@ namespace UnityDebug
                 supportsExceptionOptions = true,
 
                 supportsHitConditionalBreakpoints = true,
+
+                supportsLogPoints = true,
 
                 supportsSetVariable = true,
 

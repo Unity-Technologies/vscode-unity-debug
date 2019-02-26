@@ -9,4 +9,6 @@ bin
 node_modules
 oldExternal
 out
+obj
 packages
+TODO

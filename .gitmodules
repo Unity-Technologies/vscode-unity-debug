@@ -4,3 +4,6 @@
 [submodule "MonoDevelop.Debugger.Soft.Unity"]
 	path = MonoDevelop.Debugger.Soft.Unity
 	url = https://github.com/Unity-Technologies/MonoDevelop.Debugger.Soft.Unity
+[submodule "debugger-libs"]
+	path = debugger-libs
+	url = git@github.com:Unity-Technologies/debugger-libs.git
