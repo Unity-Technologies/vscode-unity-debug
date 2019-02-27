@@ -1,7 +1,7 @@
 {
   "name": "unity-debug",
   "displayName": "Debugger for Unity",
-  "version": "2.6.7",
+  "version": "2.7.0",
   "publisher": "Unity",
   "description": "Unity debugger extension",
   "license": "MIT",
@@ -11,13 +11,15 @@
   "extensionDependencies": [
     "ms-vscode.csharp"
   ],
-  "dependencies": {
-    "@types/node": "^10.5.1",
-    "make": "^0.8.1",
-    "npm": "^6.1.0",
+  "devDependencies": {
     "vscode": "^1.1.21",
     "vscode-debugprotocol": "^1.32.0",
     "vscode-nls": "^4.0.0"
+  },
+  "dependencies": {
+    "@types/node": "^10.5.1",
+    "make": "^0.8.1",
+    "npm": "^6.1.0"
   },
   "categories": [
     "Debuggers"

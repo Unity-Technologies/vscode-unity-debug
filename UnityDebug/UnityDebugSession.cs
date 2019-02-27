@@ -152,7 +152,9 @@ namespace UnityDebug
                 m_ResumeEvent.Set();
             };
 
-            m_Session.TargetStarted += (sender, e) => { };
+            m_Session.TargetStarted += (sender, e) =>
+            {
+            };
 
             m_Session.TargetReady += (sender, e) =>
             {

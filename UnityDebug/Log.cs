@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Security.AccessControl;
+using System.Text;
 
 namespace UnityDebug
 {
@@ -28,11 +30,18 @@ namespace UnityDebug
 				Write (message);
 		}
 
+		public static void LogError(string message, Exception ex)
+		{
+			Write(message + (ex != null ? Environment.NewLine + ex : string.Empty));
+		}
+
 		public static void Write(string message)
 		{
 			var formattedMessage = FormatMessage (message);
-			lock (logPath) {
-				File.AppendAllText (logPath, formattedMessage);
+			var buf = Encoding.UTF8.GetBytes(formattedMessage);
+			using (var stream = new FileStream(logPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+			{
+				stream.Write(buf, 0, buf.Length);
 			}
 		}
 	}

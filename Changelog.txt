@@ -6,6 +6,10 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+2.7.0
+=====
+ - Update debugger libs. This patch includes sending the absolute file path to the debugger agent on native.
+
 2.6.7
 =====
  - Fix launch settings configuration through resolve.

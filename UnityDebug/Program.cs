@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,7 +39,7 @@ namespace UnityDebug
 
 			public void LogError(string message, Exception ex)
 			{
-				Log.Write(message + (ex != null ? Environment.NewLine + ex : string.Empty));
+				Log.LogError(message, ex);
 			}
 
 			public void LogMessage(string messageFormat, params object[] args)
@@ -48,7 +49,7 @@ namespace UnityDebug
 
 			public string GetNewDebuggerLogFilename()
 			{
-				return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + "-log.txt");
+				return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + "-another-log.txt");
 			}
 		}
 
