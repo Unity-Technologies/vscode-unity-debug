@@ -1,5 +1,7 @@
 ## Unity Debugger Extension for Visual Studio Code
 
+This extension is not officially supported by Unity Technologies.
+
 Use Visual Studio Code to debug your Unity C# projects.
 
 ## Setup
