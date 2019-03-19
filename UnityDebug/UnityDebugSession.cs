@@ -238,7 +238,7 @@ namespace UnityDebug
 
                 supportsHitConditionalBreakpoints = true,
 
-                supportsLogPoints = true,
+                //supportsLogPoints = true,
 
                 supportsSetVariable = true,
 
