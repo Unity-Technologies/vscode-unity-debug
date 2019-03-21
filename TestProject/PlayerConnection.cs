@@ -11,7 +11,7 @@ namespace PlayerConnection_spec
         public void XboxOneTestCase()
         {
             var dictionary = PlayerConnection.PlayerInfo.ParsePlayerString(
-                @"[IP] 192.168.1.9 [Port] 4600 [Flags] 3 [Guid] 1343323326 [EditorId] 2183797363 [Version] 1048832 [Id] XboxOnePlayer(192.168.1.9):4601 [Debug] 1");
+                @"[IP] 192.168.1.9 [Port] 4600 [Flags] 3 [Guid] 1343323326 [EditorId] 2183797363 [Version] 1048832 [Id] XboxOnePlayer(192.168.1.9):4601 [Debug] 1 [ProjectName] ProjectNameTest");
             Assert.AreEqual("192.168.1.9", dictionary["ip"]);
             Assert.AreEqual("4600", dictionary["port"]);
             Assert.AreEqual("3", dictionary["flags"]);
@@ -20,13 +20,14 @@ namespace PlayerConnection_spec
             Assert.AreEqual("1048832", dictionary["version"]);
             Assert.AreEqual("XboxOnePlayer(192.168.1.9):4601", dictionary["id"]);
             Assert.AreEqual("1", dictionary["debug"]);
+            Assert.AreEqual("ProjectNameTest", dictionary["projectname"]);
         }
 
         [Test]
         public void PS4PlayerTestCase()
         {
             var dictionary = PlayerConnection.PlayerInfo.ParsePlayerString(
-                @"[IP] 192.168.1.4 [Port] 35037 [Flags] 3 [Guid] 1906011430 [EditorId] 2225513615 [Version] 1048832 [Id] PS4Player(192.168.1.4):4601 [Debug] 1");
+                @"[IP] 192.168.1.4 [Port] 35037 [Flags] 3 [Guid] 1906011430 [EditorId] 2225513615 [Version] 1048832 [Id] PS4Player(192.168.1.4):4601 [Debug] 1 [ProjectName] ProjectNameTest");
             Assert.AreEqual("192.168.1.4", dictionary["ip"]);
             Assert.AreEqual("35037", dictionary["port"]);
             Assert.AreEqual("3", dictionary["flags"]);
@@ -35,6 +36,7 @@ namespace PlayerConnection_spec
             Assert.AreEqual("1048832", dictionary["version"]);
             Assert.AreEqual("PS4Player(192.168.1.4):4601", dictionary["id"]);
             Assert.AreEqual("1", dictionary["debug"]);
+            Assert.AreEqual("ProjectNameTest", dictionary["projectname"]);
         }
     }
 
@@ -45,7 +47,7 @@ namespace PlayerConnection_spec
         public void XboxOneTestCase()
         {
             var playerInfo = PlayerConnection.PlayerInfo.Parse(
-                @"[IP] 192.168.1.9 [Port] 4600 [Flags] 3 [Guid] 1343323326 [EditorId] 2183797363 [Version] 1048832 [Id] XboxOnePlayer(192.168.1.9):4601 [Debug] 1");
+                @"[IP] 192.168.1.9 [Port] 4600 [Flags] 3 [Guid] 1343323326 [EditorId] 2183797363 [Version] 1048832 [Id] XboxOnePlayer(192.168.1.9):4601 [Debug] 1 [ProjectName] ProjectNameTest");
             Assert.AreEqual("192.168.1.9", playerInfo.m_IPEndPoint.Address.ToString());
             Assert.AreEqual(4600, playerInfo.m_IPEndPoint.Port);
             Assert.AreEqual(3, playerInfo.m_Flags);
@@ -54,13 +56,14 @@ namespace PlayerConnection_spec
             Assert.AreEqual(1048832, playerInfo.m_Version);
             Assert.AreEqual("XboxOnePlayer(192.168.1.9):4601", playerInfo.m_Id);
             Assert.AreEqual(true, playerInfo.m_AllowDebugging);
+            Assert.AreEqual("ProjectNameTest", playerInfo.m_ProjectName);
         }
 
         [Test]
         public void PS4PlayerTestCase()
         {
             var playerInfo = PlayerConnection.PlayerInfo.Parse(
-                @"[IP] 192.168.1.4 [Port] 35037 [Flags] 3 [Guid] 1906011430 [EditorId] 2225513615 [Version] 1048832 [Id] PS4Player(192.168.1.4):4601 [Debug] 1");
+                @"[IP] 192.168.1.4 [Port] 35037 [Flags] 3 [Guid] 1906011430 [EditorId] 2225513615 [Version] 1048832 [Id] PS4Player(192.168.1.4):4601 [Debug] 1 [ProjectName] ProjectNameTest");
             Assert.AreEqual("192.168.1.4", playerInfo.m_IPEndPoint.Address.ToString());
             Assert.AreEqual(35037, playerInfo.m_IPEndPoint.Port);
             Assert.AreEqual(3, playerInfo.m_Flags);
@@ -69,6 +72,7 @@ namespace PlayerConnection_spec
             Assert.AreEqual(1048832, playerInfo.m_Version);
             Assert.AreEqual("PS4Player(192.168.1.4):4601", playerInfo.m_Id);
             Assert.AreEqual(true, playerInfo.m_AllowDebugging);
+            Assert.AreEqual("ProjectNameTest", playerInfo.m_ProjectName);
         }
     }
 }
