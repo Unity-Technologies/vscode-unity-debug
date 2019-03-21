@@ -12,14 +12,14 @@
     "ms-vscode.csharp"
   ],
   "devDependencies": {
-    "vscode": "^1.1.21",
+    "vscode": "^1.1.30",
     "vscode-debugprotocol": "^1.32.0",
     "vscode-nls": "^4.0.0"
   },
   "dependencies": {
     "@types/node": "^10.5.1",
     "make": "^0.8.1",
-    "npm": "^6.1.0"
+    "npm": "^6.9.0"
   },
   "categories": [
     "Debuggers"
