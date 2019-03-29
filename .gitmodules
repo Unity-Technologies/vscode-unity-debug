@@ -7,3 +7,9 @@
 [submodule "debugger-libs"]
 	path = debugger-libs
 	url = https://github.com/Unity-Technologies/debugger-libs.git
+[submodule "External/cecil"]
+	path = External/cecil
+	url = https://github.com/jbevain/cecil.git
+[submodule "External/NRefactory"]
+	path = External/NRefactory
+	url = https://github.com/icsharpcode/NRefactory.git

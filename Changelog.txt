@@ -6,6 +6,10 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+3.0.0
+=====
+ - Update debugger libraries. Fixes added Roslyn to evaluate certain expressions sent to the debugger.
+
 2.7.0
 =====
  - Update debugger libs. This patch includes sending the absolute file path to the debugger agent on native.

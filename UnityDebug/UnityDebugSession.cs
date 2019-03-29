@@ -10,18 +10,15 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
 using Mono.Debugging.Client;
 using Mono.Debugging.Soft;
 using MonoDevelop.Debugger.Soft.Unity;
-using MonoDevelop.Unity.Debugger;
 using Newtonsoft.Json.Linq;
 using VSCodeDebug;
 using Breakpoint = Mono.Debugging.Client.Breakpoint;
 using ExceptionBreakpointsFilter = VSCodeDebug.ExceptionBreakpointsFilter;
 using InitializedEvent = VSCodeDebug.InitializedEvent;
 using OutputEvent = VSCodeDebug.OutputEvent;
-using ResponseBreakpoint = Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages.Breakpoint;
 using Scope = VSCodeDebug.Scope;
 using Source = VSCodeDebug.Source;
 using SourceBreakpoint = VSCodeDebug.SourceBreakpoint;
@@ -90,7 +87,10 @@ namespace UnityDebug
                 return true;
             };
 
-            m_Session.LogWriter = (isStdErr, text) => { };
+            m_Session.LogWriter = (isStdErr, text) =>
+            {
+                SendOutput(isStdErr ? "stderr" : "stdout", text);
+            };
 
             m_Session.TargetStopped += (sender, e) =>
             {
@@ -431,8 +431,8 @@ namespace UnityDebug
         public override void SetFunctionBreakpoints(Response response, dynamic arguments)
         {
             Log.Write($"UnityDebug: SetFunctionBreakpoints: {response} ; {arguments}");
-            var breakpoints = new List<ResponseBreakpoint>();
-            SendResponse(response, new SetFunctionBreakpointsResponse(breakpoints));
+            var breakpoints = new List<VSCodeDebug.Breakpoint>();
+            SendResponse(response, new SetFunctionBreakpointsBody(breakpoints.ToArray()));
         }
 
         public override void Continue(Response response, dynamic arguments)
@@ -610,6 +610,11 @@ namespace UnityDebug
                     {
                         var bp = m_Session.Breakpoints.Add(path, breakpoint.line);
                         bp.ConditionExpression = breakpoint.condition;
+                        if (!string.IsNullOrEmpty(breakpoint.logMessage))
+                        {
+                            bp.HitAction = HitAction.PrintExpression;
+                            bp.TraceExpression = breakpoint.logMessage;
+                        }
                         dictionary[breakpoint.line] = bp;
                         responseBreakpoints.Add(new VSCodeDebug.Breakpoint(true, breakpoint.line, breakpoint.column, breakpoint.logMessage));
                     }

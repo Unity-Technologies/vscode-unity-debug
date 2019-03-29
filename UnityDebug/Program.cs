@@ -61,6 +61,11 @@ namespace UnityDebug
 				return;
 			}
 
+//			while (!Debugger.IsAttached)
+//			{
+//				System.Threading.Thread.Sleep(100);
+//			}
+
 			Log.Write ("UnityDebug");
 
 			MonoDevelop.Debugger.Soft.Unity.Log.AddLogger (new Logger());
