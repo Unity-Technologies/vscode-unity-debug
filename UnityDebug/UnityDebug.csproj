@@ -131,6 +131,10 @@
     <None Include="app.config" />
   </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\debugger-libs\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj">
+            <Project>{372e8e3e-29d5-4b4d-88a2-4711cd628c4e}</Project>
+            <Name>Mono.Debugger.Soft</Name>
+        </ProjectReference>
         <ProjectReference Include="..\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj">
             <Project>{de40756e-57f6-4af2-b155-55e3a88cced8}</Project>
             <Name>Mono.Debugging.Soft</Name>

@@ -11,24 +11,14 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using Mono.Debugging.Client;
+using Mono.Debugging.Evaluation;
 using Mono.Debugging.Soft;
 using MonoDevelop.Debugger.Soft.Unity;
 using Newtonsoft.Json.Linq;
 using VSCodeDebug;
 using Breakpoint = Mono.Debugging.Client.Breakpoint;
-using ExceptionBreakpointsFilter = VSCodeDebug.ExceptionBreakpointsFilter;
-using InitializedEvent = VSCodeDebug.InitializedEvent;
-using OutputEvent = VSCodeDebug.OutputEvent;
-using Scope = VSCodeDebug.Scope;
-using Source = VSCodeDebug.Source;
-using SourceBreakpoint = VSCodeDebug.SourceBreakpoint;
 using StackFrame = Mono.Debugging.Client.StackFrame;
-using StoppedEvent = VSCodeDebug.StoppedEvent;
-using TerminatedEvent = VSCodeDebug.TerminatedEvent;
 using Thread = VSCodeDebug.Thread;
-using ThreadEvent = VSCodeDebug.ThreadEvent;
-using UnityProcessInfo = MonoDevelop.Debugger.Soft.Unity.UnityProcessInfo;
-using Variable = VSCodeDebug.Variable;
 
 namespace UnityDebug
 {
@@ -152,9 +142,7 @@ namespace UnityDebug
                 m_ResumeEvent.Set();
             };
 
-            m_Session.TargetStarted += (sender, e) =>
-            {
-            };
+            m_Session.TargetStarted += (sender, e) => { };
 
             m_Session.TargetReady += (sender, e) =>
             {
@@ -615,6 +603,7 @@ namespace UnityDebug
                             bp.HitAction = HitAction.PrintExpression;
                             bp.TraceExpression = breakpoint.logMessage;
                         }
+
                         dictionary[breakpoint.line] = bp;
                         responseBreakpoints.Add(new VSCodeDebug.Breakpoint(true, breakpoint.line, breakpoint.column, breakpoint.logMessage));
                     }
@@ -808,7 +797,7 @@ namespace UnityDebug
 
         public override void Evaluate(Response response, dynamic args)
         {
-            var expression = GetString(args, "expression");
+            string expression = GetString(args, "expression");
             var frameId = GetInt(args, "frameId", 0);
 
             if (expression == null)
@@ -817,24 +806,26 @@ namespace UnityDebug
                 return;
             }
 
-            var frame = m_FrameHandles.Get(frameId, null);
+            StackFrame frame = m_FrameHandles.Get(frameId, null);
             if (frame == null)
             {
                 SendError(response, "no active stackframe");
                 return;
             }
 
-            if (!frame.ValidateExpression(expression))
-            {
-                SendError(response, "invalid expression");
-                return;
-            }
-
             var evaluationOptions = m_DebuggerSessionOptions.EvaluationOptions.Clone();
             evaluationOptions.EllipsizeStrings = false;
             evaluationOptions.AllowMethodEvaluation = true;
-            var val = frame.GetExpressionValue(expression, evaluationOptions);
-            val.WaitHandle.WaitOne();
+            var context = new EvaluationContext(evaluationOptions);
+            var val = m_Session.Evaluators.GetEvaluator(context).Evaluate(context, expression);
+
+//            if (!frame.ValidateExpression(new [] {expression}))
+//            {
+//                SendError(response, "invalid expression");
+//                return;
+//            }
+//            var val = frame.GetExpressionValue(expression, evaluationOptions);
+//            val.WaitHandle.WaitOne();
 
             var flags = val.Flags;
             if (flags.HasFlag(ObjectValueFlags.Error) || flags.HasFlag(ObjectValueFlags.NotSupported))

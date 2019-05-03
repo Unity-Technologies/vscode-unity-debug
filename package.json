@@ -1,7 +1,7 @@
 {
   "name": "unity-debug",
   "displayName": "Debugger for Unity",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "publisher": "Unity",
   "description": "Unity debugger extension",
   "license": "MIT",
@@ -104,11 +104,9 @@
       {
         "type": "unity",
         "label": "Unity Debugger",
-        "enableBreakpointsFor": {
-          "languageIds": [
-            "csharp"
-          ]
-        },
+        "languages": [
+          "csharp"
+        ],
         "program": "./bin/UnityDebug.exe",
         "osx": {
           "runtime": "mono"

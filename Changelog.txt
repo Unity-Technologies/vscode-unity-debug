@@ -6,6 +6,12 @@ Git: https://github.com/Unity-Technologies/vscode-unity-debug
 Changes
 -------
 
+3.0.1
+=====
+ - Added support for log points.
+ - Fixed breakpoint cases.
+ - Fixed a ton of evaluation issues.
+
 3.0.0
 =====
  - Update debugger libraries. Fixes added Roslyn to evaluate certain expressions sent to the debugger.
