@@ -1,87 +1,87 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
-    <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{33071BC3-C0E6-47F1-96CE-50BBCE820DD4}</ProjectGuid>
-        <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-        <OutputType>Library</OutputType>
-        <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>UnityDebug.Tests</RootNamespace>
-        <AssemblyName>UnityDebug.Tests</AssemblyName>
-        <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
-        <FileAlignment>512</FileAlignment>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="System"/>
-        <Reference Include="System.Core"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System.Xml"/>
-        <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb">
-            <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="AdvancedEvaluationTests.cs"/>
-        <Compile Include="BreakpointAndSteppingTests.cs"/>
-        <Compile Include="CodeCompletionTests.cs"/>
-        <Compile Include="CorBreakpointsAndSteppingTests.cs"/>
-        <Compile Include="CorEvaluationTests.cs"/>
-        <Compile Include="CorStackFrameTests.cs"/>
-        <Compile Include="DebugTests.cs"/>
-        <Compile Include="EvaluationTests.cs"/>
-        <Compile Include="IMDTextFile.cs"/>
-        <Compile Include="ITextFile.cs"/>
-        <Compile Include="MDLogger.cs"/>
-        <Compile Include="MDTextFile.cs"/>
-        <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="SdbBreakpointsAndSteppingTests.cs"/>
-        <Compile Include="SdbEvaluationTests.cs"/>
-        <Compile Include="SdbStackFrameTests.cs"/>
-        <Compile Include="StackFrameTests.cs"/>
-        <Compile Include="TextFile.cs"/>
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\AppDomainClient\AppDomainClient.csproj">
-            <Project>{e671ae70-6384-41ff-8444-6dd967f117cd}</Project>
-            <Name>AppDomainClient</Name>
-        </ProjectReference>
-        <ProjectReference Include="..\..\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj">
-            <Project>{de40756e-57f6-4af2-b155-55e3a88cced8}</Project>
-            <Name>Mono.Debugging.Soft</Name>
-        </ProjectReference>
-        <ProjectReference Include="..\..\debugger-libs\Mono.Debugging\Mono.Debugging.csproj">
-            <Project>{90c99adb-7d4b-4eb4-98c2-40bd1b14c7d2}</Project>
-            <Name>Mono.Debugging</Name>
-        </ProjectReference>
-        <ProjectReference Include="..\UnityDebug.Tests.TestApp\UnityDebug.Tests.TestApp.csproj">
-            <Project>{e486f44c-c7a4-4cf1-8a17-69f0182c9e7e}</Project>
-            <Name>UnityDebug.Tests.TestApp</Name>
-        </ProjectReference>
-    </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{33071BC3-C0E6-47F1-96CE-50BBCE820DD4}</ProjectGuid>
+    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UnityDebug.Tests</RootNamespace>
+    <AssemblyName>UnityDebug.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdvancedEvaluationTests.cs" />
+    <Compile Include="BreakpointAndSteppingTests.cs" />
+    <Compile Include="CodeCompletionTests.cs" />
+    <Compile Include="CorBreakpointsAndSteppingTests.cs" />
+    <Compile Include="CorEvaluationTests.cs" />
+    <Compile Include="CorStackFrameTests.cs" />
+    <Compile Include="DebugTests.cs" />
+    <Compile Include="EvaluationTests.cs" />
+    <Compile Include="IMDTextFile.cs" />
+    <Compile Include="ITextFile.cs" />
+    <Compile Include="MDLogger.cs" />
+    <Compile Include="MDTextFile.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SdbBreakpointsAndSteppingTests.cs" />
+    <Compile Include="SdbEvaluationTests.cs" />
+    <Compile Include="SdbStackFrameTests.cs" />
+    <Compile Include="StackFrameTests.cs" />
+    <Compile Include="TextFile.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AppDomainClient\AppDomainClient.csproj">
+      <Project>{e671ae70-6384-41ff-8444-6dd967f117cd}</Project>
+      <Name>AppDomainClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj">
+      <Project>{de40756e-57f6-4af2-b155-55e3a88cced8}</Project>
+      <Name>Mono.Debugging.Soft</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\debugger-libs\Mono.Debugging\Mono.Debugging.csproj">
+      <Project>{90c99adb-7d4b-4eb4-98c2-40bd1b14c7d2}</Project>
+      <Name>Mono.Debugging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UnityDebug.Tests.TestApp\UnityDebug.Tests.TestApp.csproj">
+      <Project>{086bc930-b57b-47e6-8d60-a9034d78ef12}</Project>
+      <Name>UnityDebug.Tests.TestApp</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
            Other similar extension points exist, see Microsoft.Common.targets.
       <Target Name="BeforeBuild">
       </Target>
