@@ -9,7 +9,7 @@
     "vscode": "^1.32.3"
   },
   "extensionDependencies": [
-    "ms-vscode.csharp"
+    "ms-dotnettools.csharp"
   ],
   "devDependencies": {
     "vscode": "^1.1.33",
