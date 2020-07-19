@@ -48,7 +48,8 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "activationEvents": [
-    "*"
+    "onDebugInitialConfigurations",
+    "onDebugResolve:unity"
   ],
   "contributes": {
     "commands": [
