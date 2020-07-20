@@ -13,3 +13,6 @@
 [submodule "External/NRefactory"]
 	path = External/NRefactory
 	url = https://github.com/icsharpcode/NRefactory.git
+[submodule "nrefactory"]
+	path = nrefactory
+	url = https://github.com/icsharpcode/nrefactory
