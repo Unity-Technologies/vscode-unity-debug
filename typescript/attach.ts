@@ -103,7 +103,7 @@ function startSession(context: ExtensionContext, config: any) {
     let execCommand = "";
     if (process.platform !== 'win32')
         execCommand = "mono ";
-    exec(execCommand + context.extensionPath + "/bin/UnityDebug.exe list", function (error, stdout, stderr) {
+    exec(execCommand + context.extensionPath + "/bin/UnityDebug.exe list", async function (error, stdout, stderr) {
         const processes = [];
         const lines = stdout.split("\n");
         for (let i = 0; i < lines.length; i++) {
@@ -114,24 +114,20 @@ function startSession(context: ExtensionContext, config: any) {
         if (processes.length == 0) {
             window.showErrorMessage("No Unity Process Found.");
         } else {
-            window.showQuickPick(processes).then(function (string) {
-                if (!string) {
-                    return;
-                }
-                const config = {
-                    "name": string,
-                    "request": "launch",
-                    "type": "unity",
-                    "__exceptionOptions": exceptions.convertToExceptionOptionsDefault()
-                }
-                debug.startDebugging(undefined, config)
-                    .then(function (response) {
-                            console.log(response);
-                        },
-                        function (error) {
-                            console.log(error);
-                        });
-            });
+            var chosen = await window.showQuickPick(processes);
+            if (!chosen) {
+                return;
+            }
+            const config = {
+                "name": chosen,
+                "request": "launch",
+                "type": "unity",
+                "__exceptionOptions": exceptions.convertToExceptionOptionsDefault()
+            }
+            let response = await debug.startDebugging(undefined, config);
+                    console.log("8");
+
+            console.log("debug ended: " + response);
         }
     });
 }
