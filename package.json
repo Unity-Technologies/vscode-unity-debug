@@ -13,13 +13,13 @@
   ],
   "devDependencies": {
     "@types/vscode": "^1.47.0",
-    "vscode-debugprotocol": "^1.34.0",
-    "vscode-nls": "^4.1.0"
+    "vscode-debugprotocol": "^1.34.0"
   },
   "dependencies": {
     "@types/node": "^10.14.4",
     "make": "^0.8.1",
-    "npm": "^6.9.0"
+    "npm": "^6.9.0",
+    "vscode-nls": "^4.1.0"
   },
   "categories": [
     "Debuggers"
