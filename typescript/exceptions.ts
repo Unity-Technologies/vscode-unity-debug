@@ -14,30 +14,36 @@ class ExceptionItem implements QuickPickItem {
     model: DebugProtocol.ExceptionOptions
 }
 
-export class Exceptions implements TreeDataProvider<Exception> {
-    private _onDidChangeTreeData: EventEmitter<Exception | undefined> = new EventEmitter<Exception | undefined>();
-    readonly onDidChangeTreeData?: Event<Exception | undefined> = this._onDidChangeTreeData.event;
+enum ExceptionMode {
+    Always,
+    Never,
+    Unhandled
+}
+
+export class Exceptions implements TreeDataProvider<ExceptionBreakpoints> {
+    private _onDidChangeTreeData: EventEmitter<ExceptionBreakpoints | undefined> = new EventEmitter<ExceptionBreakpoints | undefined>();
+    readonly onDidChangeTreeData?: Event<ExceptionBreakpoints | undefined> = this._onDidChangeTreeData.event;
 
     constructor(private exceptions: ExceptionConfigurations) {
     }
 
-    public always(element: Exception) {
+    public always(element: ExceptionBreakpoints) {
         this.exceptions[element.name] = "always";
-        element.mode = "always";
+        element.setMode(ExceptionMode.Always);
         this._onDidChangeTreeData.fire(element);
         this.setExceptionBreakpoints(this.exceptions);
     }
 
-    public never(element: Exception) {
+    public never(element: ExceptionBreakpoints) {
         this.exceptions[element.name] = "never";
-        element.mode = "never";
+        element.setMode(ExceptionMode.Never);
         this._onDidChangeTreeData.fire(element);
         this.setExceptionBreakpoints(this.exceptions);
     }
 
-    public unhandled(element: Exception) {
+    public unhandled(element: ExceptionBreakpoints) {
         this.exceptions[element.name] = "unhandled";
-        element.mode = "unhandled";
+        element.setMode(ExceptionMode.Unhandled);
         this._onDidChangeTreeData.fire(element);
         this.setExceptionBreakpoints(this.exceptions);
     }
@@ -56,35 +62,46 @@ export class Exceptions implements TreeDataProvider<Exception> {
         });
     }
 
-    setExceptionBreakpoints(model: ExceptionConfigurations) {
+    setExceptionBreakpoints(exceptionConfigs: ExceptionConfigurations) {
 
         const args: DebugProtocol.SetExceptionBreakpointsArguments = {
             filters: [],
-            exceptionOptions: this.convertToExceptionOptions(model)
+            exceptionOptions: this.exceptionConfigurationToExceptionOptions(exceptionConfigs)
         };
 
         vscode.debug.activeDebugSession.customRequest('setExceptionBreakpoints', args).then<DebugProtocol.SetExceptionBreakpointsResponse>();
     }
 
     public convertToExceptionOptionsDefault(): DebugProtocol.ExceptionOptions[] {
-        return this.convertToExceptionOptions(this.exceptions);
+        return this.exceptionConfigurationToExceptionOptions(this.exceptions);
     }
 
-    public convertToExceptionOptions(model: ExceptionConfigurations): DebugProtocol.ExceptionOptions[] {
+    public exceptionConfigurationToExceptionOptions(exceptionConfigs: ExceptionConfigurations): DebugProtocol.ExceptionOptions[] {
         const exceptionItems: DebugProtocol.ExceptionOptions[] = [];
-        for (const exception in model) {
+        for (const exception in exceptionConfigs) {
             exceptionItems.push({
                 path: [{names: [exception]}],
-                breakMode: model[exception]
+                breakMode: exceptionConfigs[exception]
             });
         }
         return exceptionItems;
     }
 
-    getTreeItem(element: Exception): TreeItem | Thenable<TreeItem> {
+    public exceptionConfigurationToExceptionMode(exceptionConfig: string): ExceptionMode {
+        switch (exceptionConfig)
+        {
+            case "always": return ExceptionMode.Always;
+            case "never": return ExceptionMode.Never;
+            case "unhandled": return ExceptionMode.Unhandled;
+            default: throw new Error(exceptionConfig + ": is not a known exceptionConfig");
+        }
+    }
+
+    getTreeItem(element: ExceptionBreakpoints): TreeItem | Thenable<TreeItem> {
         return element;
     }
-    getChildren(element?: Exception): ProviderResult<Exception[]> {
+
+    getChildren(element?: ExceptionBreakpoints): ProviderResult<ExceptionBreakpoints[]> {
         if (!this.exceptions) {
             window.showInformationMessage('No exception found');
             return Promise.resolve([]);
@@ -92,43 +109,37 @@ export class Exceptions implements TreeDataProvider<Exception> {
 
         return new Promise(resolve => {
             if (element) {
-                const exceptionItems: Exception[] = [];
+                const exceptionItems: ExceptionBreakpoints[] = [];
                 for (const exception in this.exceptions) {
-                    exceptionItems.push(new Exception(exception, this.exceptions[exception]));
+                    exceptionItems.push(new ExceptionBreakpoints(exception, this.exceptionConfigurationToExceptionMode(this.exceptions[exception])));
                 }
                 resolve(exceptionItems);
             } else {
-                const exceptionItems: Exception[] = [];
+                const exceptionItems: ExceptionBreakpoints[] = [];
                 for (const exception in this.exceptions) {
-                    exceptionItems.push(new Exception(exception, this.exceptions[exception]));
+                    exceptionItems.push(new ExceptionBreakpoints(exception, this.exceptionConfigurationToExceptionMode(this.exceptions[exception])));
                 }
                 resolve(exceptionItems);
             }
         });
     }
-    getParent?(element: Exception): ProviderResult<Exception> {
+    getParent?(element: ExceptionBreakpoints): ProviderResult<ExceptionBreakpoints> {
         return null;
     }
 }
 
-class Exception extends TreeItem {
+class ExceptionBreakpoints extends TreeItem {
     constructor(
         public name: string,
-        public mode: string,
+        public mode: ExceptionMode,
     ) {
         super(mode + " : " + name);
+        this.setMode(mode);
     }
 
-    get label(): string {
-        return `[${this.mode == "always" ? "✔" : "✖"}] ${this.name}`;
-    }
-
-    set label(newLabel: string) {
-        this.name = this.name;
-    }
-
-    get tooltip(): string {
-        return `[${this.mode == "always" ? "✔" : "✖"}] ${this.name}`;
+    setMode(mode: ExceptionMode) {
+        this.mode = mode;
+        this.label = this.tooltip = `[${this.mode == ExceptionMode.Always ? "✔" : "✖"}] ${this.name}`;
     }
 
     contextValue = 'exception';
