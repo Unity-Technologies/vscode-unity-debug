@@ -10,6 +10,6 @@
 [submodule "External/cecil"]
 	path = External/cecil
 	url = https://github.com/jbevain/cecil.git
-[submodule "External/NRefactory"]
-	path = External/NRefactory
-	url = https://github.com/icsharpcode/NRefactory.git
+[submodule "nrefactory"]
+	path = nrefactory
+	url = https://github.com/icsharpcode/nrefactory

@@ -24,21 +24,21 @@ export class Exceptions implements TreeDataProvider<Exception> {
     public always(element: Exception) {
         this.exceptions[element.name] = "always";
         element.mode = "always";
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(element);
         this.setExceptionBreakpoints(this.exceptions);
     }
 
     public never(element: Exception) {
         this.exceptions[element.name] = "never";
         element.mode = "never";
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(element);
         this.setExceptionBreakpoints(this.exceptions);
     }
 
     public unhandled(element: Exception) {
         this.exceptions[element.name] = "unhandled";
         element.mode = "unhandled";
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(element);
         this.setExceptionBreakpoints(this.exceptions);
     }
 
@@ -46,13 +46,13 @@ export class Exceptions implements TreeDataProvider<Exception> {
         let options: InputBoxOptions = {
             placeHolder: "(Namespace.ExceptionName)"
         }
-        
+
         window.showInputBox(options).then(value => {
             if (!value) {
                 return;
             }
             this.exceptions[value] = "never";
-            this._onDidChangeTreeData.fire();
+            this._onDidChangeTreeData.fire(null);
         });
     }
 

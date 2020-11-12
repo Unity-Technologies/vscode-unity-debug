@@ -7,7 +7,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>UnityDebug</RootNamespace>
     <AssemblyName>UnityDebug</AssemblyName>
-      <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
   </PropertyGroup>
@@ -60,7 +60,8 @@
     <Reference Include="Mono.Posix, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
       <HintPath>..\External\Mono.Posix.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
@@ -94,12 +95,12 @@
     <Compile Include="..\MonoDebug\src\Utilities.cs">
       <Link>MonoDebug\Utilities.cs</Link>
     </Compile>
-      <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\UnityDebuggerSession.cs">
-          <Link>MonoDevelop.Debugger.Soft.Unity\UnityDebuggerSession.cs</Link>
-      </Compile>
-      <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\UnityDebuggerStartInfo.cs">
-          <Link>MonoDevelop.Debugger.Soft.Unity\UnityDebuggerStartInfo.cs</Link>
-      </Compile>
+    <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\UnityDebuggerSession.cs">
+      <Link>MonoDevelop.Debugger.Soft.Unity\UnityDebuggerSession.cs</Link>
+    </Compile>
+    <Compile Include="..\MonoDevelop.Debugger.Soft.Unity\UnityDebuggerStartInfo.cs">
+      <Link>MonoDevelop.Debugger.Soft.Unity\UnityDebuggerStartInfo.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnityDebugSession.cs" />
     <Compile Include="Program.cs" />
@@ -130,14 +131,18 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj">
-            <Project>{de40756e-57f6-4af2-b155-55e3a88cced8}</Project>
-            <Name>Mono.Debugging.Soft</Name>
-        </ProjectReference>
-        <ProjectReference Include="..\debugger-libs\Mono.Debugging\Mono.Debugging.csproj">
-            <Project>{90c99adb-7d4b-4eb4-98c2-40bd1b14c7d2}</Project>
-            <Name>Mono.Debugging</Name>
-        </ProjectReference>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\debugger-libs\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj">
+      <Project>{372e8e3e-29d5-4b4d-88a2-4711cd628c4e}</Project>
+      <Name>Mono.Debugger.Soft</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj">
+      <Project>{de40756e-57f6-4af2-b155-55e3a88cced8}</Project>
+      <Name>Mono.Debugging.Soft</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\debugger-libs\Mono.Debugging\Mono.Debugging.csproj">
+      <Project>{90c99adb-7d4b-4eb4-98c2-40bd1b14c7d2}</Project>
+      <Name>Mono.Debugging</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
