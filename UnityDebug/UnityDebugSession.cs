@@ -845,19 +845,19 @@ namespace UnityDebug
                     error = "not available";
                 }
 
-                SendError(response, error);
+                SendResponse(response, new EvaluateResponseBody(error));
                 return;
             }
 
             if (flags.HasFlag(ObjectValueFlags.Unknown))
             {
-                SendError(response, "invalid expression");
+                SendResponse(response, new EvaluateResponseBody("invalid expression"));
                 return;
             }
 
             if (flags.HasFlag(ObjectValueFlags.Object) && flags.HasFlag(ObjectValueFlags.Namespace))
             {
-                SendError(response, "not available");
+                SendResponse(response, new EvaluateResponseBody("not available"));
                 return;
             }
 
