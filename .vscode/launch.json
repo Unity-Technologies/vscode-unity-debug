@@ -11,6 +11,14 @@
 			],
 			"stopOnEntry": false,
 			"sourceMaps": true
+		},
+		{
+			"name": "Attach to Debugger",
+			"type": "clr",
+			"request": "attach",
+			"processName": "UnityDebug.exe",
+			"justMyCode": false,
+			"requireExactSource": false,
 		}
 	]
 }
