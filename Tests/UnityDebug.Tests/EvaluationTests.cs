@@ -853,21 +853,20 @@ namespace VSCode.UnityDebug.Tests
 			Assert.AreEqual ("1", val.Value);
 			Assert.AreEqual ("int", val.TypeName);
 
-			// TODO: in, out, and ref params are not currently supported
-			//val = Eval ("Swap (ref intZero, ref intOne)");
-			//Assert.AreEqual ("", val.Value);
+			val = Eval ("Swap (ref intZero, ref intOne)");
+			Assert.AreEqual ("", val.Value);
 
-			//val = Eval ("intZero");
-			//Assert.AreEqual ("1", val.Value);
-			//Assert.AreEqual ("int", val.TypeName);
+			val = Eval ("intZero");
+			Assert.AreEqual ("1", val.Value);
+			Assert.AreEqual ("int", val.TypeName);
 
-			//val = Eval ("intOne");
-			//Assert.AreEqual ("0", val.Value);
-			//Assert.AreEqual ("int", val.TypeName);
+			val = Eval ("intOne");
+			Assert.AreEqual ("0", val.Value);
+			Assert.AreEqual ("int", val.TypeName);
 
-			//Lets return in same state as before in case some other test will use
-			//val = Eval ("Swap (ref intZero, ref intOne)");
-			//Assert.AreEqual ("", val.Value);
+			// Lets return in same state as before in case some other test will use
+			val = Eval ("Swap (ref intZero, ref intOne)");
+			Assert.AreEqual ("", val.Value);
 
 			val = Eval ("GenerateList(\"someString\", 5)");
 			Assert.AreEqual ("Count=5", val.Value.Replace (" ", ""));//Remove spaces is for references source and old mono compatiblity
@@ -1117,13 +1116,13 @@ namespace VSCode.UnityDebug.Tests
 				Assert.AreEqual ("string", val.TypeName);
 			}
 
-//			val = Eval ("UnityDebug.Tests.TestApp");
-//			Assert.AreEqual ("UnityDebug.Tests.TestApp", val.Value);
-//			Assert.AreEqual ("<namespace>", val.TypeName);
+			val = Eval ("UnityDebug.Tests.TestApp");
+			Assert.AreEqual ("UnityDebug.Tests.TestApp", val.Value);
+			Assert.AreEqual ("<namespace>", val.TypeName);
 
-//			val = Eval ("UnityDebug.Tests.TestApp.TestEvaluation");
-//			Assert.AreEqual ("UnityDebug.Tests.TestApp.TestEvaluation", val.Value);
-//			Assert.AreEqual ("<type>", val.TypeName);
+			val = Eval ("UnityDebug.Tests.TestApp.TestEvaluation");
+			Assert.AreEqual ("UnityDebug.Tests.TestApp.TestEvaluation", val.Value);
+			Assert.AreEqual ("<type>", val.TypeName);
 
 			val = Eval ("UnityDebug.Tests.TestApp.TestEvaluation.staticString");
 			Assert.AreEqual ("\"some static\"", val.Value);
