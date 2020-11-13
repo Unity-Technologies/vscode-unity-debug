@@ -149,7 +149,6 @@ namespace UnityDebug.Tests.TestApp
 		{
 			var a = new TestStepperBoundary ();
 			a.Test1 ();/*f3a22b38-596a-4463-a562-20b342fdec12*/
-			a.Test3 ();
 			a.Test3 ();/*4721f27a-a268-4529-b327-c39f208c08c5*/
 		}
 
