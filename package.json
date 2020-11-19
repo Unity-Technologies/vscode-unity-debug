@@ -124,7 +124,82 @@
               }
             }
           }
-        }
+        },
+        "configurationSnippets": [
+          {
+            "label": "Unity Debug: Unity Editor",
+            "body": {
+              "name": "Unity Editor",
+              "type": "unity",
+              "path": "^\"\\${workspaceFolder}/Library/EditorInstance.json\"",
+              "request": "launch"
+            }
+          },
+          {
+            "label": "Unity Debug: Windows Player",
+            "body": {
+              "name": "Windows Player",
+              "type": "unity",
+              "request": "launch"
+            }
+          },
+          {
+            "label": "Unity Debug: OSX Player",
+            "body": {
+              "name": "OSX Player",
+              "type": "unity",
+              "request": "launch"
+            }
+          },
+          {
+            "label": "Unity Debug: Linux Player",
+            "body": {
+              "name": "Linux Player",
+              "type": "unity",
+              "request": "launch"
+            }
+          },
+          {
+            "label": "Unity Debug: iOS Player",
+            "body": {
+              "name": "iOS Player",
+              "type": "unity",
+              "request": "launch"
+            }
+          },
+          {
+            "label": "Unity Debug: Android Player",
+            "body": {
+              "name": "Android Player",
+              "type": "unity",
+              "request": "launch"
+            }
+          },
+          {
+            "label": "Unity Debug: Xbox One Player",
+            "body": {
+              "name": "Xbox One Player",
+              "type": "unity",
+              "request": "launch"
+            }
+          },
+          {
+            "label": "Unity Debug: PS4 Player",
+            "body": {
+              "name": "PS4 Player",
+              "type": "unity",
+              "request": "launch"
+            }
+          },
+          {
+            "label": "Unity Debug: SwitchPlayer",
+            "body": {
+              "name": "SwitchPlayer",
+              "type": "unity",
+              "request": "launch"
+            }
+          }
+        ]
       }
     ]
   }
