@@ -50,6 +50,11 @@
     "*"
   ],
   "contributes": {
+    "breakpoints": [
+      {
+        "language": "csharp"
+      }
+    ],
     "commands": [
       {
         "command": "attach.attachToDebugger",
@@ -103,11 +108,6 @@
       {
         "type": "unity",
         "label": "Unity Debugger",
-        "enableBreakpointsFor": {
-          "languageIds": [
-            "csharp"
-          ]
-        },
         "program": "./bin/UnityDebug.exe",
         "osx": {
           "runtime": "mono"
