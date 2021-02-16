@@ -44,7 +44,7 @@ class UnityDebugConfigurationProvider implements DebugConfigurationProvider {
 			{
 				name: "Unity Editor",
 				type: "unity",
-				path: folder.uri.path + "/Library/EditorInstance.json",
+				path: "${workspaceFolder}/Library/EditorInstance.json",
 				request: "launch"
 			},
 			{
