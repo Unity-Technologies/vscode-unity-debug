@@ -47,7 +47,12 @@
     "watch": "tsc -w -p ./src/typescript"
   },
   "activationEvents": [
-    "*"
+    "onCommand:attach.attachToDebugger",
+    "onCommand:exceptions.addEntry",
+    "onCommand:exceptions.always",
+    "onCommand:exceptions.never",
+    "onView:exceptions",
+    "onDebug"
   ],
   "contributes": {
     "breakpoints": [
